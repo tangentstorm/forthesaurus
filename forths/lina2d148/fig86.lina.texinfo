@@ -1,0 +1,8180 @@
+
+
+
+
+
+
+\input texinfo
+@setfilename fig86.lina.info
+@afourpaper
+@settitle fig-Forth manual
+@setchapternewpage odd
+
+@titlepage
+@title fig-Forth Manual
+A common intel/computer intelligence/CH+ forth.
+
+For the configuration:
+@itemize @bullet
+@item            
+experimental version 2.148
+@item             
+32-bits 
+@item 
+running under Linux 
+@item
+number of blocks limited to 256
+@end itemize
+
+@author Albert van der Horst 
+Dutch Forth Workshop
+
+
+@page
+@c @vskip Opt plus 1fill
+Copyright @copyright{} 2000 Dutch Forth Workshop
+
+Permission is granted to copy with attribution.
+Program is protected by the GNU Public License.
+@end titlepage
+
+@page
+@node Top, Gentle Introduction, Glossary, 
+@chapter Overview
+Forth is an interactive programming system. 
+fig-Forth is a Forth that can be generated in many different version
+for many different operation systems.
+This file documents what you as a user needs to know for using this
+particular version of fig-Forth once it is installed on your system. 
+
+fig-Forth consists of three files:
+@itemize
+@item
+
+lina : the program
+
+@item
+fig-Forth.ps fig-Forth.html : the documentation
+@item
+fig-Forth.blk : source for auxiliary programs
+@end itemize
+
+These files are generated together by the generic system fig86.gnr.
+The documentation only applies to the fig-Forth with which it goes.
+
+If your Forth doesn't fit description below get a new version.
+@xref{Rationale & legalese}. 
+
+These are the features:, 
+
+It is running under Linux.A number has a precision of 32 bits.It calls linux system from Forth directly. It is indirect threaded.
+
+@iftex
+If you are new to Forth you may want to read the Gentle Introduction,
+otherwise you better skip this. The second chapter you as a user
+don't want to read. In this experimental version it contains a lot of
+installation and configuration information that in fact doesn't belong in 
+a user manual.
+@end iftex
+
+@menu 
+* Gentle Introduction:: For newbies to Forth. You don't want to read this.
+* Rationale & legalese:: For experts. You don't want to read this.
+* Manual::	   User manual 
+* Glossary::  	   Description of Forth words
+* Glossary Index:: Find a Forth words in the glossary
+* Forth Word Index:: All references to Forth words
+* Concept Index::
+@end menu
+
+@node Gentle Introduction, Rationale & legalese, top, top
+@chapter Gentle introduction
+A Forth system is a database of small programs.
+The database is called the dictionary.
+The programs are called words, or definitions.
+The explanation of words from the dictionary is called
+a glossary.
+
+Like in a Disk Operating System a program is executed
+by typing its name, but unlike in a DOS several programs
+can be specified on the same line, interspersed with
+numbers. Also names can be anything, as long as they don't 
+contain spaces. 
+
+A program may leave one or more 
+results, and the next program can use it. 
+The latest result is used up first, hence the name lifo buffer.
+(last in, first out).
+
+For example:
+
+@example
+@cartouche 1 2 + 7 * 
+OK
+.
+21 OK 
+@end cartouche
+@end example
+
+
+1 2 and 7 are numbers and are just remembered as they are typed in. 
+'21 OK' is the answer of the computer.
+@code{+}
+@findex +
+ is a small program with an appropriate name.
+It adds the two numbers that were entered the latest, in this
+case 1 and 2. The result 3 remains, but 1 and 2 are consumed.
+The program @code{*}
+@findex *
+ multiplies the 3 and the 7 and the result is 21.
+The program @code{.}
+@findex .
+ prints this results. It could have
+been put on the same line equally easily.
+
+Programs can be added to the database by special programs: the so
+called defining words. A defining word generally gets the name of the
+new word from the input line.
+
+For example: a constant is just a program that leaves always 
+the same value. 
+A constant is created in this way, by the defining word @code{CONSTANT}
+@findex CONSTANT
+ :
+
+@example
+@cartouche 127 CONSTANT MONKEY   12 .
+12 OK
+@end cartouche
+@end example
+
+This must not be read like:
+
+ a number, two programs and again a number etc.... , 
+
+but as:
+
+a number, a program and a name that is consumed, and after that
+life goes on. The @samp{12 .} we put there for demonstration purposes,
+to show that @code{CONSTANT}
+@findex CONSTANT
+ reads ahead only one word.
+We see that @code{CONSTANT}
+@findex CONSTANT
+ like any other program consumes some 
+data, in this case the 127 that serves as an initial value for 
+the constant called  @var{MONKEY} .
+
+A very important defining word is @code{:}
+@findex :
+, with its closure 
+@code{;}
+@findex ;
+.
+
+@example
+@cartouche : TEST 1 2 + 7 * ;     12 . 
+12 OK 
+@end cartouche
+@end example
+
+
+In this case not only the name @var{TEST} is consumed, but none of the remaining
+numbers and programs are executed. 
+Instead they form a specification of what @var{TEST} must do.
+After the semicolon life continues as usual.
+
+@example
+@cartouche TEST TEST + .
+42 OK
+@end cartouche
+@end example
+
+We see that @var{TEST} behaves as a shorthand for the line up till
+the semi colon, and that in its turn it can be used as a building
+block.
+
+The colon allows the Forth programmer to add new programs 
+easily and test them easily, by typing them at the keyboard.
+It is considered bad style if a program is longer than 
+a couple of lines. 
+Indeed the inventor of Forth Chuck Moore has written splendid
+applications with an average program length of about one line.
+Cathedrals were built by laying stone upon stone, 
+never carved out of one rock.
+
+The implementation of the language Forth you look at is very old
+fashioned, but simple. You as a user have to deal with only three
+parts/files : this documentation, the executable program, and the
+screen file, a heap of small programs in source form. 
+
+There is an ISO standard for Forth and this Forth doesn't
+comply to it. Still by restricting yourself to the definitions marked
+as ISO in the glossary, it is quite possible to write an application
+that will run on any ISO-compliant system. 
+
+
+
+
+@node Rationale & legalese, Manual, Gentle Introduction, top
+@chapter  Rationale & legalese
+@section                        Legalese
+
+This Forth is called fig-Forth and is made available through the
+D.F.W. 
+All publications of the D.F.W. are available under GPL, the GNU public license.
+The file COPYING containing the legal expression of these lines must accompagny it.
+
+Because Forth is ``programming by extending the language'' the GPL
+could be construed to mean that systems based on fig-Forth
+always are legally obliged to make the source available. 
+But we consider this ``fair use in the Forth sense''.
+
+In addition to the GPL the D.F.W. states the following:
+
+The GPL is interpreted in the sense that a system based on fig-Forth
+and intended to serve a particular purpose, that purpose not being a
+``general purpose Forth system'', is fair use of the system, even if it
+could accomplish everything fig-Forth could, under the condition that the
+fig-Forth it is based on is available in accordance to the GPL rules,
+and this is made known to the user of the derived system.
+
+@section                         Rationale 
+
+What you find here is a Forth for the Intel 86. It is a fig-Forth
+as of old.Complying in detail with the Fig glossary, which is available 
+in electronicfrom for the first time in history.
+The motivation for having this type of Forth available follows from its
+characteristics. It is available as an assembler source, and it is an
+indirect threaded Forth. 
+An assembler source has distinct advantages for getting started from
+nothing. An engineer might balk at the description of how to use a meta
+compiler, but feels at ease with a (much larger) assembler manual.
+Although speed is currently in fashion, using subroutine threaded Forth's
+with optimisers, indirect threading is the preferred choice for some
+applications. I did this work, because I needed it. 
+I have also the firm belief that an optimiser on an indirect threaded system
+has more information to work with and can ultimately outperform any
+other system in speed.
+
+@section                         Source
+In practice the GPL 
+ means (: this is an explanation and has no legal value!)
+
+They may be
+further reproduced and distributed subject to the following conditions:
+
+The three file comprising it must be kept together and in particular 
+the reference section with the World Wide Web sites.
+
+
+This Forth builts on fig-Forth.
+It is based on the work of Charlie Krajewski and Thomas Newman, Hayward, Ca.
+that is available via taygeta.
+
+You still can obtain the original version
+ that is public domain according to the following statement:
+
+All publications of the Forth Interest Group are public domain. They may be
+further reproduced and distributed by inclusion of this credit notice: 
+
+This publication has been made available by the Forth Interest Group, 
+
+              P. O. Box 1105,  San Carlos, Ca 94070
+
+albert@@spenarnc.xs4all.nl     http://home.hccnet.nl/a.w.m.van.der.horst
+
+@section Generic Configuration Manual
+
+This information will in due time be removed to a separate 
+manual.
+A fig-Forth user will not normally be interested in this.
+The source and executable of this fig-Forth was generated, out of at
+least dozen's of possibilities, by a generic system. An important goal
+was to generate exactly fitting documentation, that contains only
+relevant information. 
+The original system can be obtained via
+http://home.hccnet.nl/a.w.m.van.der.horst/fig-Forth.html
+
+
+@subsection Introduction
+
+What you find here is a Forth for the Intel 86. It is a FIG Forth as of old.
+Complying in detail with the Fig glossary, which is available in electronic
+from for the first time in history.
+The motivation for having this type of Forth available follows from its
+characteristics. It is available as an assembler source, and it is an
+indirect threaded Forth. 
+An assembler source has distinct advantages for getting started from
+nothing. An engineer might balk at the description of how to use a meta
+compiler, but feels at ease with a (much larger) assembler manual.
+Although speed is currently in fashion, using subroutine threaded Forth's
+with optimisers, indirect threading is the preferred choice for some
+applications. I did this work, because I needed it. 
+It is based on the work of Charlie Krajewski and Thomas Newman, Hayward, Ca.
+that is available via taygeta. And of course kudo's to FIG.
+The original is public domain. My extensions are GPL-ed or libary GPL-ed.
+I transferred the copyright to the Dutch Forth Workshop, a foundation that
+supports Forth and defends the GPL.
+
+@subsection 32 bits
+It is unusual for a fig-Forth to be 32 bit.
+It turned out that the addition of CELL+ goes a long way toward allowing
+utilities like a decompiler to be 16/32 bit clean. In the FIG documentation
+about the user variables and +ORIGIN you may read cells where appropriate
+and the documentation applies. 
+
+@subsection System requirements
+
+This generic version -if suitably built- runs on industry standard hardware
+("PC's") : standalone, under Linux and under MSDOS/MSWINDOWS. 
+To build, you need a version of nasm, TASM or MASM on your system. I
+recomment nasm, it is an open source assembler and available on different
+platforms, at least MSDOS and Unix. It solves a lot of the design errors I
+find in the Intel ways of MASM.EXE. It generates a binary without a linker. 
+On the opposite side, e.g. Borland's TASM you can buy nowaday's only as part
+of a giant C++ package. 
+If you want to use the generic possibilities you will need a Unix system
+with all of its tools. I use GNU-Linux (RedHat) and do the makes and version
+control on that. If you want your bootable floppies made from linux to be
+MSDOS-compatible you need mtools. 
+
+@subsection Assembler sources
+
+The following two assembly sources generated are supplied as a service.
+These are in fact just examples. You can generate different ones (see next
+section.) 
+The file alone.asm can be assembled using NASM. It includes a boot
+sector such that it can boot from a standard floppy on a industry standard
+Intel PC. If you have the mtools set (most Linux'es have it) the Makefile
+shows you how to make the floppy. On MSDOS you can use DEBUG. 
+If you run on Linux with
+mtools, "make boot" will do it. 
+The resulting floppy will even be recognized by
+MSDOS, such that you can copy block sources to it. 
+Make "moreboot" will do this from Linux, then you will have BLOCKS.BLK
+available. Make "allboot" will do it all, but it needs a working forth
+on Linux for doing some calculations.
+Otherwise on MSDOS (I recommended version 3.3, the most stable MSDOS ever)
+adapt the example genboot.asm. 
+The file msdos.msm can be assembled using TASM and MASM. The resulting Forth
+executable can be run off hard disk and respects the file system on it.
+It uses the file BLOCKS.BLK.
+
+@subsection A generic Forth
+This version has one single source file: the generic I86 figForth.
+All advantages of assembler source would be gone, if an engineer were
+confronted with conditional compilation and lots of code for other systems
+he doesn't want to learn or assemblers he doesn't want to use.
+So we proceed in two steps. First a clean assembler source is generated from
+the generic Forth using configuration files. Then the assembler source is
+processed in one of a number of ways, each way familiar to one brand of
+engineers. 
+
+You can customize at a number of levels.
+@enumerate
+@item
+Configuration files have extension .cfg , these are files with m4
+commands. They are intended to use at the highest and easiest level of
+configuration and contain their own simple usage instructions. 
+@item
+m4 files have extension m4, and control one aspect of genericity, such
+as the header layout or the protection mode. You definitely need to know m4
+to use these.
+@item
+Assembler files can be customised in the traditional way by adopting
+constants, or commenting in source lines. The assembler files are distinct
+from the one generic source. No m4, you need only cope with the directives
+of your assembler, and will not see any code applicable to other operating
+systems or I/O systems. (It is not commented out, it is just not there.) 
+@item
+You can adapt the generic source. This is difficult, but gratifying.
+If you manage to ANSI-fy it, the result is multiplied.
+@end enumerate
+
+@subsection Level 1 customization.
+
+This is assuming you run on Unix.
+
+By specifying what you want in a configuration file you can generate a host
+of assembler listings. This is as simple as replacing "yes" with "no" in
+configuration files.
+See the examples @file{msdos.cfg} and @file{alone.cfg} and the Makefile. 
+You can find out what the options are by inspecting @file{prelude.m4} . 
+
+With respect to the assembler you can choose between NASM and MASM, with
+file extension @file{.asm} and @file{.msm} respectively. The @var{.msm} are acceptable by
+TASM.EXE too. You can generate an equivalent @file{.s} file, but this is 
+experimental and doesn't lead to a working forth.
+
+With respect to the I/O (words like @code{EXPECT}
+@findex EXPECT
+ @code{R/W}
+@findex R/W
+ ) you can choose between
+three on MSDOS.
+You can use dos (_CLASSIC_) in the classic way as with the original. This
+means that the floppy is used directly without regard for directory
+structures. This uses calls that are declared obsolete.
+You can use dos in a modern way. (_MODERN_). This allocates block in the
+file with name @file{BLOCKS.BLK} . This name is available in the string @code{BLOCK-FILE}
+@findex BLOCK-FILE
+ 
+for you to change, also at run time. No (as of 2000 ) obsolete MSDOS calls
+are used (Checked against MS-DOS programmers reference "covers through
+version 6" ISBN 1-55615-546-8) 
+You can use the BIOS (_USEBIOS_) No MSDOS interrupts are required. 
+
+With repect to I/O on linux you can choose between c-based and native.
+The c-based version may be portable to other I86 unices. The native version
+of course not. All linux versions have their blocks in a file. (Accessing
+a floppy in the classic way is perfectly possible -- and implementing it would
+be a perfectly pointless exercise.)
+
+With respect to the hosting you can choose between _HOSTED_ (_HOSTED_LINUX_ or
+_HOSTED_MSDOS_) and _BOOTED_. (_BOOTDF_ or _BOOTHD_). A hosted version relies on
+MSDOS or Linux to get the program started. (It may or may not use MSDOS for
+I/O, once started.). A _BOOTED_ version contains a boot sector, such that
+you you can make a standalone version that boots from floppy or hard disk. 
+A _BOOTED_ version may very well be startable from plain DOS and its files 
+visible from DOS.
+
+Of course a BOOTED_ version that tries to use MSDOS I/O (or Linux) crashes
+immediately, so not all versions are useful. 
+
+You have a choice between 16 or 32 protected mode and real mode.
+Of course on Linux real mode is not an option, (but you could run the
+MSDOS emulator). Protected mode Forths on MSDOS cannot be started from
+virtual real mode, e.g. they will not run in a "DOS box" in Windows.
+
+If you manage to specify conflicting options the preprocessor (m4) breaks
+off and you can find the exit code in @file{postlude.m4} . Than you can reason back
+why this is a conflict. For example error 1000 indicates floppy and hard
+disk i/o at the same time. From @file{postlude.m4} you see that _RWFD_ and _RWHD_ are
+on at the same time. _RWHD_ is turned on because you wanted to boot from hard
+disk or you specified it yourself in the first place. Etc. 
+
+ @var{postlude.m4} does you another favor. It derives logical consequences, such
+as once you decide for a _REAL_ mode Forth, it must be _BITS16_ and you need
+not specify that. In particular _LINUX_N_ or _LINUX_C_ says it all.    
+
+@subsection Level 2 customization.
+You are on your own here.
+
+@subsection Level 3 customization.
+
+The usual customisation in assembler files is possible. 
+If you use other than 3" floppy disks you have to specify the disk
+parameters. Parameters for a 5" HD floppy are present and can be commented
+in. 
+If you do not need a DOS-compatible floppy, you can put the image
+immediately after the boot sector. A bootable hard disk version always works
+like that. 
+You can change the default name of the BLOCK-FILE at run time.
+If you want to change the header layout, you will find that the way headers
+are done via MACRO's make it more pleasant to use the generic listing. 
+If you may want you can use this as a starting point for generating a whole
+other Forth (like me).   
+If you want to boot into your 20 Gbyte disk (like me), you probably have a
+version 3.0 super modern LBA BIOS. There is no file system, just 20,000,000
+blocks (and yes a 16 bit system would be inconvenient). If you want to use
+an older system you must experiment by using the BIOS word. (You need not
+resort to assembler for experimenting.) Then you can adapt your assembler 
+listing.
+There is a description in the history section about bringing up an assembler
+system.
+
+@subsection Level 4 customization.
+Contact me if you want to contribute to the wider usability of this package.
+
+@subsection Programs
+In the file BLOCKS.BLK is available a screen editor, assembler, decompiler
+and tools like DUMP. Beware! Some of the tools handle hards disks. There are
+example programs and benchmarks. Everything under screen 100 you will find
+more or less working, but maybe not on your system.
+Everything loaded from 8 is used by me on a regular basis and is 16/32 bits
+clean. Beware! The full screen editor doesnot work under Linux (protection).
+The program `wc' is an example of how to use lina as a scripting language.
+
+@subsection Deviations
+
+Some non-substantial deviation of the original FIG source have been made
+for good reasons. They are described in figdocadd.txt.
+
+The assumption in using OFFSET was that you have two identical floppy drives
+and no hard disk. That is nowadays extremely unlikely. Instead I put OFFSET
+to good use to screen off a part of the floppy that must not be used (such
+as an MSDOS directory or the hard disk part that contains the forth system.)
+
+The FIG filosofy is that sectors, blocks and screens must be compatible, but
+may be all different. The original 8086 FIG had one sector for a block. I
+changed that in having one block for a screen. This is a boon for those
+wanting to ANSI-fy the sources.
+
+The way I coded the character I/O points ahead to vectoring @code{TYPE}
+@findex TYPE
+ and @code{EXPECT}
+@findex EXPECT
+ 
+rather than @code{EMIT}
+@findex EMIT
+ and @code{KEY}
+@findex KEY
+ . This way I can have the host system handle the rub
+out key. 
+
+I added generic words @code{BIOS}
+@findex BIOS
+ , @code{BDOS}
+@findex BDOS
+ and @code{LINOS}
+@findex LINOS
+ . These allow to have high level
+words to handle about all @code{BIOS}
+@findex BIOS
+ and interrupt 21 calls. Linux is better.
+ @code{LINOS}
+@findex LINOS
+ handles all Linux system calls. 
+
+@subsection The joy of genericity
+
+Genericity is acomplished by the Unix tools m4. I use GNU m4. This is a weird
+tool but powerful. Forthers probably like it.
+Some implementation details are hidden in the file header.m4. In particular
+the way headers are built. I maybe 
+want to get rid of the @code{WIDTH}
+@findex WIDTH
+ and @code{TRAVERSE
+peculiarities}
+@findex TRAVERSE
+peculiarities
+ and you may want to have the headers alligned at word bounds.
+This is easily done by changes to @file{header.m4} .
+This kind of possibilities were in fact the motivation for this undertaking. 
+
+@subsection Web sites.
+A newer or improved version may be gotten from
+http://home.hccnet.nl/a.w.m.van.der.horst
+Nasm is found at 
+
+The FIG source this is based on is at 
+
+MASM.EXE is available 
+
+The original fig documentation is at 
+http://home.hccnet.nl/a.w.m.van.der.horst/fig-Forth.html
+This include the pictures.
+
+@subsection Linux application notes fig-Forth version
+The linux forth called fig-Forth has its i/o based on c. This may seem more
+portable but it isn't. Where c is very portable on Linux, the way assembler
+is linked with forth is not documented (as far as I can tell, in my version.
+Linux improves overnight, so this may no longer be true.) 
+The "break key" is implemented as the "any key". This key is lost, as is
+perfectly allowed in the fig model. The @code{EXPECT}
+@findex EXPECT
+ has not the " return if
+maximum reached property", so it is not strictly conforming. This can be
+done at the expense of handling each character separately. (Use @code{KEY}
+@findex KEY
+ to
+implement @code{EXPECT}
+@findex EXPECT
+ as in the CLASSIC I/O model). This results in loosing
+interruptability. Moreover Linux knows better what the @code{RUBOUT}
+@findex RUBOUT
+ key should be,
+although for your convenenience it is already placed in a user variable and
+can be easily changed. 
+The c-approach allows signals to be handled in a familiar way.
+By using quit, a loop can be interrupted. So ^\ results in a warm start.
+A segmentation fault also results in a warm start. ^C immediately leaves.
+^S/^Q can be used to hold up output and are not interpreted as a break
+in e.g. VLIST.
+
+@subsection Linux application notes lina version
+The lina version is based on a single assembler source, built without
+trickery and binary-portable accross Linux Intel (all systems were it has
+been tried work : 1.2.13 .. 2.0.13). No run time c-libraries, no compile time
+c-libraries, no libraries at all. It is built directly on the solid rock
+of the system calls by ignoring a taboo c-programmers suffer from.
+@example
+@cartouche 
+    nasm -felf lina.asm 
+    ld lina.o -s -o lina
+    strip lina
+
+@end cartouche
+@end example
+It is less than 12 K and the dictionary space is set at 64 Mbyte. 
+
+Blocks are allocated in a file called @file{BLOCKS.BLK} This name can be changed in
+listing and also during run time. 
+ @file{BLOCKS.BLK} can be changed into an editable file and back by
+@samp{cat BLOCKS.BLK | fromblocks > blocks.frt
+cat blocks.frt | toblocks > BLOCKS.BLK}
+
+The user variable @var{EM} still is the end of the memory. 
+The @var{M4_EM} in the configuration files is such that it designates the relative
+size, from the relocatable start. 
+Consequently it is not the same as the user variable. 
+(The relocatable start is some 128 Mbyte into the memory space.).
+@subsection Bugs
+See the separate test report for an indication of which and how far 
+versions have been tested.
+@enumerate
+@item
+Linux version.
+Once you have used a SIGQUIT to interrupt a loop, @code{BYE}
+@findex BYE
+ no longer works.
+You can exit the program by "0 0 0 1 LINOS", which is exit(0) in
+c-parlance or by pressing ^C, or by killing it from some other terminal,
+or by just closing the window. 
+You will not encounter this bug in version 2.148,
+because that version crashes immediately, 
+due to build problems.
+@item
+@code{OUT}
+@findex OUT
+ may not be observed in all I/O models. Needs examination.
+@item
+   More a misfeature. The negative error numbers of Linux system calls
+   can be handled by negative offset's from screen 4. Now an offset
+   of 64 is added. (The messages have not been filled in anyway.).
+@item
+Since I installed a new Red Hat (6.2) fig-Forth crashes. 
+@end enumerate
+
+@section                  History                                               
+     
+From the introduction to the fig-Forth installation manual:
+@quotation
+The fig-Forth implementation project occurred because a key group of Forth
+fanciers wished to make this valuable tool available on a personal computing
+level. In June of 1978, we gathered a team of nine systems level
+programmers, each with a particular target computer. The charter of the
+group was to translate a common model of Forth into assembly language
+listings for each computer. It was agreed that the group's work would be
+distributed in the public domain by FIG. 
+
+We intend that our primary recipients of the Implementation Project be
+computer users groups, libraries, and commercial vendors. 
+We expect that each will further customize for particular computers and
+redistribute. No restrictions are placed on cost, but we expect faithfulness
+to the model. FIG does not intend to distribute machine readable versions,
+as that entails customization, revision, and customer support better
+reserved for commercial vendors. 
+
+Of course, another broad group of recipients of the work is the community of
+personal computer users. We hope that our publications will aid in the use
+of Forth and increase the user expectation of the performance of high level
+computer languages. 
+@end quotation
+
+@section                 Deviations of the FIG model
+
+This version complies faithfully to the fig model, at least as
+faithfully as is customary. 
+
+The rigid subdivision in 7 area's was never adhered to. 
+In particular the bootup parameters
+are not up front as CP/M and MSDOS require a 100H byte reserved
+area there. 
+There is mention of @var{(KEY)} being ``implementation dependant code''
+but these were not often present in 
+fig implementations. Here the implementation dependant code 
+becomes part of the code definitions, or even of the high level definitions.
+
+All documentation is now accurate but only claims to describe
+fig-Forth. 
+The @code{RUBOUT}
+@findex RUBOUT
+ key is a bonafide @code{USER}
+@findex USER
+ variable
+and now has a name.
+
+DR0 and DR1 are removed. There is only one consecutive mass storage area, be
+it a disk or a file. 
+@var{MOVE MON BLOCK-READ BLOCK-WRITE DLIST} are not present.
+Altering OUT to influence formatting doesn't work here, nor on 
+any fig-Forth I know off.
+
+Some real errors were fixed 
+
+@section                 Must go to the generic information
+
+ Installation Dependent Code
+
+You may want to use the assembly code of this fig-Forth to 
+base a new Forth on. If this adversely affects the documentation
+I urge you not to do that but to use the generic system.
+
+The  following words 
+are traditionally 
+the only portion that need change between different
+installations of the same computer cpu. They cannot come close to the capabilities
+of the generic system, and should be used for minor modifications only.
+
+There are five words that need adaptation:
+
+KEY 
+    Push the next ascii value (7 bits) from the terminal keystroke to the
+    computation stack and execute NEXT. High 9 bits are zero. Do not echo
+    this character, especially a control character. 
+
+
+EMIT 
+    Pop the computation stack (16 bit value). Display the low 7 bits on the
+    terminal device, then execute NEXT. Control characters have their
+    natural functions. 
+
+?TERMINAL 
+    For terminals with a break key, wait till released and push to the
+    computation stack 0001 if it was found depressed; otherwise 0000.
+    Execute NEXT. If no break key is available, sense any key depression as
+    a break (sense but don't wait for a key). If both the above are
+    unavailable, simply push 0000 and execute NEXT. 
+
+CR 
+    Execute a terminal carriage return and line feed. Execute NEXT. 
+
+R/W 
+This colon-definition is the standard linkage to your disc. It requests
+the read or write of a disc block, be it raw disk or allocated in a file.
+
+On primitive systems these may be jumps to ROM-code. But generally on i86
+facilities like this are available using @dfn{INT}
+@cindex INT
+'s a kind of traps.
+These observe operating system protocols and are available as high level forth
+code.
+
+@section              Ram disc simulation
+
+If disc is not available, a simulation of BLOCK and BUFFER may be made in
+RAM. The following definitions setup high memory as mass storage. Referenced
+``screens'' are then brought to the ``disc buffer'' area. This is a good method
+to test the start-up program even if disc may be available. 
+
+@example
+@cartouche 
+HEX  
+4000 CONSTANT LO ( START OF BUFFER AREA ) 
+6800 CONSTANT HI ( 10 SCREEN EQUIVALENT ) 
+: R/W >R ( save boolean ) 
+    B/BUF * LO + DUP 
+    HI > 6 ?ERROR ( range check ) 
+    R> IF ( read ) SWAP ENDIF 
+    B/BUF CMOVE ;
+
+@end cartouche
+@end example   
+
+Insert the code field address of R/W into BLOCK and BUFFER and proceed as if
+testing disc. R/W simulates screens 0 thru 9 when B/BUF is 128, in the
+memory area $4000 thru $6BFF. 
+
+
+             DEBUGGUBG AND INSTALLATION
+
+Let us assume we have an system based on an assembler listing 
+and we want to debug it. 
+
+Here are the sequential steps: 
+@enumerate
+@item
+Familiarize yourself with the model written in Forth, the glossary, and
+specific assembly listings. 
+@item
+Edit the assembly listings into your system. Set the fifth
+boot-up parameters (WARNING) to 0000 (warning messages are shown as 
+simple numbers).
+@item
+Alter the terminal support code (KEY, EMIT, etc,) to match your system. 
+Observe register protocol specific to your  implementation!
+@item
+Place a break in your debugger at the end of NEXT, just before indirectly
+jumping via register W to execution. W is the Forth name for the register
+holding a code field address, and may be differently referenced in your
+listings. 
+@item
+Enter the cold start at the origin. Upon the break, check that the
+interpretive pointer IP points within ABORT and W points to SP!. 
+If COLD is a colon-definition, then the IP has been initialized on the way
+to NEXT and your testing will begin in COLD. The purpose of COLD is to
+initialize IP, SP, RP, VP, and some user variables from the start-up
+parameters at the origin. 
+@item
+Continue execution one word at a time. 
+Clever individuals could write a simple trace routine to print IP, W, SP, RP
+and the top of the stacks. Run in this single step mode until the greeting
+message is printed. Note that the interpretation is several hundred cycles
+to this stage! 
+@item
+Execution errors may be localized by observing the above pointers when a
+crash occurs. 
+@item
+After the word QUIT is executed (incrementally), and you can input a
+"return" key and get OK printed, remove the break. 
+You may have some remaining errors, but a reset and examination of the above registers will again localize problems.
+@item
+When the system is interpreting from the keyboard, execute EMPTY-BUFFERS
+to clear the disc buffer area. 
+@item
+If your disc driver differs from the assembly version, you must create
+your own R/W .
+You may test the disc access by typing: 0
+BLOCK 64 TYPE This should bring block zero from the disc to a buffer and
+type the first 64 characters. 
+If BLOCK (and R/W) doesn't function--happy hunting! 
+@end enumerate
+
+MULTI-USER
+
+The name USER reflects that more than one user could use the dictionary
+and users could share the background storage, provided certain precautions
+are taken. 
+These precautions are
+@enumerate
+@item 
+Variables that can be different for different users, 
+must be defined as an offset to an area, that is different for
+each user.
+@item
+Provisions that maintains the integrity of the dictionary
+@item
+Different stacks for each user.
+@item
+A means to switch applications.
+@item 
+Different scratchpads for each user.
+@end enumerate
+
+Almost nothing from this is realised in the fig-Forth model.
+In fact only 1, but there is only one area.
+
+Still USER variables seem to serve a useful purpose. 
+They are initialised during start up, 
+by changing it one could modify the system.
+This however is only seemingly.
+Because the initialised memory is saved anyway,
+the initial values would be stored even if they
+were ordinary variables.
+So we are left with the disadvantage that we have to store them
+back before saving the system.
+Remains the advantage that they can be restored by typing @code{COLD}
+@findex COLD
+ .
+This too is hardly an advantage because with the fast mass storage you would 
+rather type @code{BYE}
+@findex BYE
+ and @samp{forth} as a much safer way 
+to restart your Forth.
+                                    
+
+
+
+
+@node Manual, Glossary, Rationale & legalese, top
+@chapter Manual
+@section Concepts
+
+A forth user is well aware of how the memory of his 
+computer is organised. He allocates it for certain purposes,
+and frees it again at will.
+
+The @dfn{dictionary}
+@cindex dictionary
+ 
+is the part of the memory where the @code{words}
+@findex words
+ are
+(@pxref{DICTIONARY}.
+It owns a part of the dictionary, starting with its name and
+ending where the name of the next word starts.
+This structure is called a @dfn{dictionary entry}
+@cindex dictionary entry
+ .
+A word can be executed by typing its name. 
+Each word in the dictionary belongs to precisely one @dfn{vocabulary}
+@cindex vocabulary
+ .
+Apart from the name a word contains data and executable code,
+(interpreted or not) and linking information 
+(@pxref{VOCABULARY}.
+
+A word that generates a new entry in the dictionary is called a 
+@dfn{defining word}
+@cindex defining word
+ @xref{DEFINING}.
+The new word is created in the @code{CURRENT}
+@findex CURRENT
+ vocabulary.
+
+Each processor has a natural size for the information. (This is
+sometimes called a machine word). For an Pentium processor this is 
+32 bit, for the older Intel 8086 it is 16 bit.
+The pendant in Forth is called a @dfn{cell}
+@cindex cell
+ and its size
+may deviate from the processor you are running on.
+For this fig-Forth it is 32,
+It applies to the data remembered in the data stack, and the 
+return addresses on the return stack.
+memory accesses @code{@@}
+@findex @@
+ and @code{!}
+@findex !
+ , the size of @code{VARIABLE}
+@findex VARIABLE
+s
+and @code{CONSTANT}
+@findex CONSTANT
+s.
+In Forth a cell has no hair. It is interpreted by you as a
+signed integer, a bit-map, a memory address or an unsigned number.
+The operator @code{+}
+@findex +
+ can be used to add numbers, to set a bit in 
+a bitmap or advance a pointer a couple of bytes.
+In accordance with this there are no errors such as overflow given.   
+
+Sometimes we use data of two cells, a @dfn{double}
+@cindex double
+ .
+The high-order cell are most accessable on the stack and if stored in 
+memory, it is highest.
+
+A so called high level word, one defined by @code{:}
+@findex :
+ , is just a 
+sequence of addresses of other words. The @dfn{inner interpreter}
+@cindex inner interpreter
+
+takes care to execute these words in sequence.
+It acts by fetching the address pointed by @var{IP} , storing
+this value in register @var{W} . It then jumps to the address
+pointed to by the address pointed to by @var{W} . @var{W}
+points to the code field of a definition which contains the address of
+the code which executes for that definition. This usage of indirect
+threaded code is a major contributor to the power, portability, and
+extensibility of Forth. 
+
+@section Saving a new system
+
+In combination with the change of the boot-up parameters at
+@code{+ORIGIN}
+@findex +ORIGIN
+ this allows to make a turnkey system.
+The procedure for saving the system.
+
+In the following we use the naming convention of ISO about cells.
+A cell is the fundamental unit of storage for the Forth engine.
+Here it is 32 bits (4 bytes).
+
+Save the system as follows.
+@enumerate
+@item
+All user variables are saved by copying them from @code{U0}
+@findex U0
+
+to @samp{0 +ORIGIN} 
+ @code{U0}
+@findex U0
+ is a user variable pointing to the start of the user area.
+@item
+If all user variables are to be initialised to what they are in this live system
+skip to step 5.
+Adjust any variables to what you want them to be in the 
+saved system in the @code{+ORIGIN}
+@findex +ORIGIN
+ area.
+The initialisation for user variable @var{Q} can be found at 
+    @samp{' Q @ +ORIGIN}.
+@item
+Adjust @code{VOCLINK}
+@findex VOCLINK
+ (the 10-th user variable, so at @var{10 CELLS +ORIGIN}  )
+@item
+Adjust version information at 2 cells before @code{+ORIGIN}
+@findex +ORIGIN
+ (if needed)
+@item
+Copy from X to HERE to disk or where ever you want to restore 
+from. In this fig-Forth you can do this 
+By changing the current block file to the program file (using @code{BLOCK-EXIT}
+@findex BLOCK-EXIT
+ and 
+ @code{BLOCK-INIT}
+@findex BLOCK-INIT
+ )
+and performing raw writes (using @code{R/W}
+@findex R/W
+ ), then switching back to your 
+original block file. 
+@end enumerate
+
+@section Memory organization
+
+A running fig-Forth has 3 distinct memory areas. 
+
+They occur sequentially from low memory to high. 
+@itemize
+@item
+The dictionary, 
+@item
+Memory, available for dictionary and stacks.
+Its lowest part is used as a scratch area
+@item
+Stacks, disk block buffers  and terminal
+input buffer. 
+@item
+@end itemize
+
+
+
+The program as residing on disk may contain startup code, but that is
+of no concern for the usage. 
+
+The dictionary area is the only part that is initialised,
+the other parts are just allocated.
+Logically the Forth system consists of these 7 parts.
+@itemize @bullet
+@item
+Boot-up parameters 
+@item
+Machine code definitions 
+@item
+Installation dependant code
+@item
+High level utility definitions
+@item
+High level definitions 
+@item
+System tools (optional)
+@item
+RAM memory workspace 
+@end itemize
+
+                 3.2  MODEL DETAILS
+The fig-FORTH model deviates a bit from the usual loading method of Forth.
+Existing systems load about 2k bytes in object form and then self-compile
+the resident system (6 to 8 k bytes). This technique allows customization
+within the high level portion, but is impractical for new implementors. 
+
+Our model has 4 to 5 k bytes written as assembler listings. The remainder
+may be compiled typing in the Forth high-level source, by more assembly
+source, or by disc compilation. 
+This method enhances transportability, although the larger portion in
+assembly code entails more effort. About 8k bytes of memory is used plus 2
+to 8k for workspace. 
+
+                 3.0  MODEL ORGANIZATION
+
+The figures are approximate. Double them for 32 bit systems; this
+applies to memory sizes mentionned in all sections.
+
+                   3.1  MODEL OVER-VIEW
+
+
+  Boot-up Parameters
+
+This area consists of 34 bytes containing a jump to the cold start, jump to
+the warm re-start and initial values for user variables and registers. These
+values are altered as you make permanent extensions to your installation. 
+
+++++++++++++++++++++++++++
+
+Read 17 cells for 34 bytes.
+In fig.gnr the bootup parameters are more or less the data field of the
++ORIGIN word. 
+Executing +ORIGIN leaves a pointer in this area but after the jump vectors
+and the release numbers. They are not used and in fact superfluous. 
+Bootup parameters with positive offset from +ORIGIN are one to one with user
+variables. Their indices have not changed, but there is now a bootup
+parameter for each and every user variable. A system with other boot
+parameters can now be generated in an even more portable fashion by using
+phrase like "7 (CW*) +ORIGIN". 
+
+ Installation Dependent Code
+
+KEY EMIT ?TERMINAL and CR are indeed different for different I/O models.
+However the bracketed versions (KEY) are not necessarily (in fact never)
+there. This part of the documentation was inaccurate or ignored by the
+original IBM/PC implementer. 
+Underneath the I/O model has improved. TYPE and EXPECT are drawn into
+the I/O model dependant part. If at all possible CR and EMIT used TYPE
+such that TYPE becomes a natural vectoring point. Similarly KEY 
+tries to use EXPECT, but mostly this is not possible because EXPECT doesnot
+return before the user hits the Enter key.
+
+Where possible installation dependant code is using a generic call to the
+operating system in particular MSDOS BIOS or LINOS. This mostly results in
+the installation dependant code to be high level. 
+
+The false urban legend that one could @code{FORGET}
+@findex FORGET
+ 
+has been replaced by an accurate description of @code{TASK}
+@findex TASK
+.
+
+  Machine Code Definitions
+
+This area consists of about 600 to 800 bytes of machine executable code in
+the form of Forth word definitions. Its purpose is to convert your computer
+into a standard Forth stack computer. Above this code, the balance of Forth
+contains a pseudo-code compiled of "execution-addresses" which are sequences
+of the machine address of the "code-fields" of other Forth definitions. All
+execution ultimately refers to the machine code definitions. 
+
+
+  High-level Utility Definitions
+
+These are colon-definitions, user variables, constants, and variables that
+allow you to control the "Forth stack computer". They comprise the bulk of
+the system, enabling you to execute and compile from the terminal. 
+If disc storage (or a RAM simulation of disc)  is available, you may also execute and compile from this facility. Changes in the high-level area are infrequent. They may be made thru the assembler source listings.
+
+
+
+    An alternate version of R/W is included that simulates disc storage in
+    RAM. If you have over 16 k bytes this is practical for startup and
+    limited operation with cassette. 
+
+
+High-level Definitions
+
+The next section contains about 30 definitions involving user interaction:
+compiling aids, finding, forgetting, listing, and number formating. These
+definitions are placed above the installation dependent code to facilitate
+modification. That is, once your full system is up, you may FORGET part of
+the high-level and re-compile altered definitions from disc. 
+
+
+System Tools
+
+A text editor and machine code assembler are normally resident. We are
+including a sample editor and hope to provide Forth assemblers. 
+The editor is compiled from the terminal the first time, and then used to
+place the editor and assembler source code on disc. 
+
+It is essential that you regard the assembly listing as just a way to get
+Forth installed on your system. Additions and changes must be planned and
+tested at the usual Forth high level and then the assembly routines updated. 
+Forth work planned and executed only at an assembly level tends to be
+non-portable, and confusing. 
+
+RAM Workspace
+
+For a single user system, at least 2k bytes must be available above the
+compiled system (the dictionary). A 16k byte total system is most typical. 
+
+The RAM workspace contains the computation and return stacks, user area,
+terminal input buffer, disc buffer and compilation space for the dictionary. 
+
+RAM workspace.
+
+There is no longer a reason to put up with a 16-bit system less than 64K. 32
+bits system are set at 64Mbyte but this is arbitrary and could be set much
+higher or lower without consequences for system load or whatever. 
+Before long we will put the dictionary space on I86-Linux to 4G minus
+something and forget about this issue forver. 
+
+         fig-FORTH VARIABLE NAME FIELD
+
+A major FIG innovation in this model, is the introduction of variable length
+definition names in compiled dictionary entries. 
+Previous methods only saved three letters and the character count.
+
+The user may select the letter count saved, up to the full natural length.
+See the glossary definition for WIDTH. 
+
+
+In this model, the following conventions have been established.
+
+@enumerate
+@item
+The first byte of the name field has the natural character count in the
+low 5 bits. 
+@item
+The sixth bit = 1 when smudged, and will prevent a match by (FIND). 
+@item
+The seventh bit = 1 for IMMEDIATE definitions; it is called the
+precedence bit. 
+@item
+The eighth or sign bit is always = 1. 
+@item
+The following bytes contain the names' letters, up to the value in WIDTH. 
+@item
+In the byte containing the last letter saved, the sign bit = 1. 
+@item
+In word addressing computer, a name may be padded with a blank to a word
+boundary. 
+@end enumerate
+
+The above methods are implemented in CREATE.
+Remember that -FIND uses BL WORD to bring the next text to HERE with the
+count preceeding. All that is necessary, is to limit by WIDTH and toggle the
+proper delimiting bits. 
+
+         fig-FORTH VARIABLE NAME FIELD
+
+They were very proud at the time that names could be any length.
+They felt obliged however to introduce the WIDTH/TRAVERSE to allow 
+upwards compatibility with systems that stored only the first few (three)
+characters of a word. This has become a major pain now. See the screens
+for the $____ and $__ words that are absolutely unportable.
+
+
+                5.0  MEMORY MAP         
+
+The following memory map is broadly used. 
+Specific installations may require alterations but you may forfeit functions
+in future FIG offerings. 
+
+The disc buffer area is at the upper bound of RAM memory. It is comprised of
+an integral number of buffers, each B/BUF+4 bytes. 
+B/BUF is the number of bytes read from the disc, usually one sector. B/BUF
+must be a power of two (64, 128, 256, 512 or 1024). 
+The constant FIRST has the value of the address of the start of the first
+buffer. 
+LIMIT has the value of the first address beyond the top buffer. The distance
+between FIRST and LIMIT must be N*(B/BUF+4) bytes. 
+This N must be two or more. 
+
+I set the number of disk buffers at 2, the minimum possible. Even a floppy
+is fast enough that working with blocks from memory has no merits. It is
+dangerous because during testing you never know what was saved and what not.
+The mass storage is easily the most crappy part of the fig model. What
+little advantage it had, is no longer applicable. Interestingly this block
+system is copied verbatim into ANS. 
+32 bits systems can enlarge the dictionary by redefining the stacks and the
+terminal input buffer positions. The block buffers are in the way. So I put
+them in the dictionary space. In fact the block buffers have become the 
+data field of FIRST.
+
+Constant B/SCR has the value of the number of buffers per screen; 
+i.e. 1024 / B/BUF. 
+
+The user area must be at least 34 bytes; 48 is more appropriate. In a 
+multi-user system, each user has his own user area, for his copy of system 
+variables. This method allows reentrant use of the Forth vocabulary. 
+
+The terminal input buffer is decimal 80 bytes (the hex 50 in QUERY) plus 2
+at the end. If a different value is desired, change the limit in QUERY. A
+parameter in the boot-up literals locates the address of this area for TIB.
+The backspace character is also in the boot-up origin parameters. It is
+universally expected that "rubout" is the backspace. 
+
+The return stack grows downward from the user area toward the terminal
+buffer. Forty-eight bytes are sufficient. The origin is in R0 (R-zero) and
+is loaded from a boot-up literal. 
+
+The computation stack grows downward from the terminal buffer toward the
+dictionary which grows upward. The origin of the stack is is in variable S0
+(S-zero) and is loaded from a boot-up literal. 
+
+After a cold start, the user variables contain the addresses of the above
+memory assignments. 
+An advanced user may relocate while the system is running. A newcomer should
+alter the startup literals and execute COLD. The word +ORIGIN is provided
+for this purpose. +ORIGIN gives the address byte or word relative to the
+origin depending on the computer addressing method. 
+
+Despite all the talk about user variables, I am not aware that a multi-user
+fig forth existed, ever. The above block policy is not compatible with 
+multi-user (but the actual code is not worse than it ever was, and you can
+rebuilt it with 1000 block buffers if you like.)
+
+Rubout is best left to the EXPECT code. Remember, a Linux itself knows the
+rubout key for any of its 500+ known terminal types and isn't it nice in
+MSDOS that F3 gets the previous command back for you? 
+If EXPECT builds up a line from separate key strokes, and if you ever want
+to change the rubout key, just change the RUBOUT user variable. 
+
+
+             6.0  DOCUMENTATION SUMMARY
+
+
+You bet this is utterly and totally out of date.
+
+The following manuals are in print: 
+
+Caltech FORTH Manual, an advanced manual with internal details of Forth. Has
+Some implementation peculiarities. Approx. $6.50 from the Caltech Book
+Store, Pasadena, CA. 
+
+Kitt Peak Forth Primer, 520.00 postpaid from the Forth Interest Group, P. O.
+Box 1105, San Carlos, CA 94070. 
+
+microFORTH Primer, $15.00 Forth, Inc. 
+815 Manhattan Ave. Manhattan Beach, CA 90266
+
+
+Forth Dimensions, newsletter of the Forth Interest Group, $5.00 for 6 issues
+including membership. F-I-G. P.O. Box 1105, San Carlos, CA. 94070 
+
+CUSTOMISING
+
+The name USER reflects that more than one user could use the dictionary
+and users could share the background storage, provided certain precautions
+are taken. About this you can forget.
+What you can do is, store back you user variables in the boot-up 
+parameters as follows
+@samp{USVA @   ' USVA @   +ORIGIN !}
+where @var{USVA} is the user variable which value you want to keep.
+
+
+
+@node Glossary,top,Manual,top
+@chapter Glossary
+Wherever it says                 
+single precision number or @dfn{cell}
+@cindex cell
+ 32 bits is meant.
+Wherever it says 
+ @dfn{double}
+@cindex double
+ or ``double precision number'' a 
+64 bits number is meant.
+
+@code{X}
+@findex X
+ must be understood that there is no actual definition with name @var{X}. 
+In the assembler listing it has label NULL.
+
+The first line of each entry shows a symbolic description of the action of
+the proceedure on the parameter stack. The symbols indicate the order in
+which input parameters have been placed on the stack. Three dashes "---"
+indicate the execution point; any parameters left on the stack are listed.
+In this notation, the top of the stack is to the right.
+
+The symbols include:
+
+@table @samp
+@item addr   
+memory address
+@item b      
+8 bit byte (i.e. hi 8 bits zero)
+@item c      
+7 bit ascii character (hi 9 bits zero)
+@item d      
+64 bit signed double integer: most significant portion with sign
+on top of stack.
+@item f      
+boolean flag. 0=false, non-zero=true
+@item ff     
+boolean false flag=0
+@item n      
+32 bit signed integer number
+@item u      
+32 bit unsigned integer
+@item tf     
+boolean true flag=non-zero
+@end table 
+
+The capital letters on the right show definition characteristics:
+
+@table @samp
+@item B      
+The word is available only after loading from background storage
+@item C      
+May only be used within a colon definition. A digit indicates number
+of memory addresses used, if other than one. 
+@item E      
+Intended for execution only.
+@item L0     
+Level Zero definition of FORTH-78
+@item L1     
+Level One definition of FORTH-78
+@item P      
+Has precedence bit set. Will execute even when compiling.
+@item U      
+A user variable.
+@end table 
+
+Unless otherwise noted, all references to numbers are for 32 bit
+signed integers. For 64 signed numbers, the
+most significant part (with the sign) is on top. 
+
+All arithmetic is implicitly 32 bit signed integer math, with error and
+under-flow indication unspecified.
+
+-- present but not documented
+FLUSH CURRENT 2DUP RP@ U.
+
+@menu
+* COMPILING ::
+* CONTROL ::
+* DEFINING ::
+* DICTIONARY ::
+* DOUBLE ::
+* ERRORS ::
+* FORMATTING ::
+* INIT ::
+* INPUT ::
+* JUGGLING ::
+* LOGIC ::
+* MEMORY ::
+* MISC ::
+* MULTIPLYING ::
+* OPERATOR ::
+* OUTPUT ::
+* PARSING ::
+* SCREEN ::
+* SECURITY ::
+* STACKS ::
+* STORAGE ::
+* STRING ::
+* SUPERFLUOUS ::
+* SYSTEM ::
+* VOCABULARIES ::
+@end menu
+
+
+ 
+
+
+
+
+
+
+
+
+@node COMPILING, CONTROL,, Glossary
+@section COMPILING
+     
+    The wordset @var{COMPILING} contains words that compile
+@xref{IMMEDIATE} words and numbers.
+You need special precautions because these words would execute during
+compilation. Numbers are compiled @dfn{in line}
+@cindex in line
+ , behind a word that fetches
+them.
+    
+
+    
+
+@menu
+
+
+* COMPILE  ::
+* DLITERAL  ::
+* LITERAL  ::
+* LIT  ::
+* [COMPILE]  ::
+@end menu
+@node COMPILE, DLITERAL, COMPILING, COMPILING
+@subsection COMPILE
+@pindex COMPILE
+
+Name: COMPILE
+
+No stackeffect
+
+Attributes: C2
+
+Description: 
+When the word containing @code{COMPILE}
+@findex COMPILE
+ executes, the execution address of
+the word following @code{COMPILE}
+@findex COMPILE
+ is copied (compiled) into the dictionary.
+This allows specific compilation situations to be handled in
+addition to simply compiling an execution address (which the
+interpreter already does).
+
+See also: @samp{[COMPILE]} 
+
+        
+
+
+@node DLITERAL, LITERAL, COMPILE, COMPILING
+@subsection DLITERAL
+@pindex DLITERAL
+
+Name: DLITERAL
+
+Stackeffect: d --- d (executing) d --- (compiling)
+
+Attributes: P
+
+Description: 
+If compiling, compile a stack double number into a literal. Later
+execution of the definition containing the literal will push it to
+the stack. If executing, the number will remain on the stack.
+
+        
+
+
+@node LITERAL, LIT, DLITERAL, COMPILING
+@subsection LITERAL
+@pindex LITERAL
+
+Name: LITERAL
+
+Stackeffect: n --- (compiling)
+
+Attributes: P,C2,L0
+
+Description: 
+If compiling, then compile the stack value @var{n} as a 16 bit literal.
+This definition is immediate so that it will execute during a colon
+definition. The intended use is:
+     @samp{: xxx    [ calculate ]  LITERAL  ;}
+Compilation is suspended for the compile time calculation of a
+value.
+Compilation is resumed and @code{LITERAL}
+@findex LITERAL
+ compiles this value.
+
+        
+
+
+@node LIT, [COMPILE], LITERAL, COMPILING
+@subsection LIT
+@pindex LIT
+
+Name: LIT
+
+Stackeffect: --- n
+
+Attributes: C2,L0
+
+Description: 
+Within a colon-definition, @code{LIT}
+@findex LIT
+ is compiled followed by a
+16 bit literal number given during compilation. Later execution of
+@code{LIT}
+@findex LIT
+ causes the contents of this next dictionary address to be pushed
+to the stack.
+
+        
+
+
+@node [COMPILE], , LIT, COMPILING
+@subsection [COMPILE]
+@pindex [COMPILE]
+
+Name: [COMPILE]
+
+No stackeffect
+
+Attributes: p,C
+
+Description: 
+Used in a colon-definition in form:
+@example
+@cartouche :  xxx    [COMPILE]   FORTH   ;
+@end cartouche
+@end example
+@code{[COMPILE]}
+@findex [COMPILE]
+ will force the compilation of an immediate definitions,
+that would otherwise execute during compilation. The above example
+will select the @code{FORTH}
+@findex FORTH
+ vocabulary then @var{xxx} executes, rather than at
+compile time.
+
+See also: @samp{COMPILE} 
+
+        
+
+
+
+
+@node CONTROL, DEFINING,COMPILING, Glossary
+@section CONTROL
+     
+    The wordset @var{CONTROL} contains words that influence the control flow
+of a program, i.e. the sequence in which commands are executed in compiled words.
+With control words you can have actions performed repeatedly, or
+depending on conditions.
+
+    
+
+    
+
+@menu
+
+
+* (+LOOP)  :paren_plus_loop
+* (DO)  :paren_do
+* (LOOP)  :paren_loop
+* +LOOP  ::
+* 0BRANCH  ::
+* AGAIN  ::
+* BACK  ::
+* BEGIN  ::
+* BRANCH  ::
+* DO  ::
+* ELSE  ::
+* ENDIF  ::
+* END  ::
+* IF  ::
+* I  ::
+* LEAVE  ::
+* LOOP  ::
+* REPEAT  ::
+* THEN  ::
+* UNTIL  ::
+* WHILE  ::
+@end menu
+@node paren_plus_loop, paren_do, CONTROL, CONTROL
+@subsection paren_plus_loop
+@pindex (+LOOP)
+
+Name: (+LOOP)
+
+Stackeffect: n ---
+
+Attributes: C2
+
+Description: 
+The run-time proceedure compiled by @code{+LOOP}
+@findex +LOOP
+, which increments the loop
+index by n and tests for loop completion.
+
+See also: @samp{+LOOP} 
+
+        
+
+
+@node paren_do, paren_loop, paren_plus_loop, CONTROL
+@subsection paren_do
+@pindex (DO)
+
+Name: (DO)
+
+No stackeffect
+
+Attributes: C
+
+Description: 
+The run-time proceedure compiled by @code{DO}
+@findex DO
+ which moves the loop control
+parameters to the return stack.
+
+See also: @samp{DO} 
+
+        
+
+
+@node paren_loop, +LOOP, paren_do, CONTROL
+@subsection paren_loop
+@pindex (LOOP)
+
+Name: (LOOP)
+
+No stackeffect
+
+Attributes: C2
+
+Description: 
+The run-time proceedure compiled by LOOP which increments the loop
+index and tests for loop completion.
+
+
+See also: @samp{LOOP} 
+
+        
+
+
+@node +LOOP, 0BRANCH, paren_loop, CONTROL
+@subsection +LOOP
+@pindex +LOOP
+
+Name: +LOOP
+
+Stackeffect: n1 --- (run)  addr n2 --- (compile)
+
+Attributes: P,C2,L0
+
+Description: 
+Used in a colon-definition in the form:
+@samp{DO ... n1 +LOOP}
+At run-time, @code{+LOOP}
+@findex +LOOP
+ selectively controls branching
+back to the corresponding @code{DO}
+@findex DO
+ based on @var{n1} , the loop index and the
+loop limit. The signed increment @var{n1} is added to the index and the
+total compared to the limit.
+The branch back to @code{DO}
+@findex DO
+ occurs until the new index is equal to or
+greater than the limit (@var{n1>0}), or until the new index is equal to or
+less than the limit (@var{n1<0}). Upon exiting the loop, the parameters
+are discarded and execution continues ahead.
+
+At compile time, @code{+LOOP}
+@findex +LOOP
+ compiles the run-time word @code{(+LOOP)}
+@findex (+LOOP)
+ and the
+branch offset computed from @code{HERE}
+@findex HERE
+ to the address left on the stack by
+@code{DO}
+@findex DO
+ . @var{n2} is used for compile tine error checking.
+
+        
+
+
+@node 0BRANCH, AGAIN, +LOOP, CONTROL
+@subsection 0BRANCH
+@pindex 0BRANCH
+
+Name: 0BRANCH
+
+Stackeffect: f ---
+
+Attributes: C2
+
+Description: 
+The run-time proceedure to conditionally branch. If @var{f} is false
+(zero), the following in-line parameter is added to the interpretive
+pointer to branch ahead or back. Compiled by @code{IF}
+@findex IF
+ , @code{UNTIL}
+@findex UNTIL
+ , and @code{WHILE}
+@findex WHILE
+ .
+
+
+        
+
+
+@node AGAIN, BACK, 0BRANCH, CONTROL
+@subsection AGAIN
+@pindex AGAIN
+
+Name: AGAIN
+
+Stackeffect: addr n --- (compiling)
+
+Attributes: P,C2,L0
+
+Description: 
+Used in a colon-definition in the form:
+                @example
+@cartouche BEGIN ... AGAIN
+@end cartouche
+@end example
+At run-time, @code{AGAIN}
+@findex AGAIN
+ forces execution to return to corresponding
+@code{BEGIN}
+@findex BEGIN
+ .
+There is no effect on the stack. Execution cannot leave this loop
+(unless @code{R>}
+@findex R>
+ @code{DROP}
+@findex DROP
+ is executed one level below).
+
+At compile time, @code{AGAIN}
+@findex AGAIN
+ compiles @code{BRANCH}
+@findex BRANCH
+ with an offset from @code{HERE}
+@findex HERE
+ to
+addr. @var{n} is used for compile-time error checking.
+
+        
+
+
+@node BACK, BEGIN, AGAIN, CONTROL
+@subsection BACK
+@pindex BACK
+
+Name: BACK
+
+Stackeffect: addr --
+
+Attributes: 
+
+Description: 
+Calculate the backward branch offset from @code{HERE}
+@findex HERE
+ to @var{addr} and compile
+into the next available dictionary memory address.
+
+See also: @samp{LOOP} 
+@samp{UNTIL} 
+
+
+        
+
+
+@node BEGIN, BRANCH, BACK, CONTROL
+@subsection BEGIN
+@pindex BEGIN
+
+Name: BEGIN
+
+Stackeffect: --- addr n  (compiling)
+
+Attributes: P,L0
+
+Description: 
+Occurs in a colon-definition in form:
+  @example
+@cartouche BEGIN ... UNTIL
+@end cartouche
+@end example
+  @example
+@cartouche BEGIN ... AGAIN
+@end cartouche
+@end example
+  @example
+@cartouche BEGIN ... WHILE ... REPEAT
+@end cartouche
+@end example
+At run-time, @code{BEGIN}
+@findex BEGIN
+ marks the start of a sequence that may be
+repetitively executed. It serves as a return point from the
+corresponding @code{UNTIL}
+@findex UNTIL
+ , @code{AGAIN}
+@findex AGAIN
+ or @code{REPEAT}
+@findex REPEAT
+
+When executing @code{UNTIL}
+@findex UNTIL
+ a return
+to @code{BEGIN}
+@findex BEGIN
+ will occur if the top of the stack is false;
+for @code{AGAIN}
+@findex AGAIN
+ and @code{REPEAT}
+@findex REPEAT
+ a return to @code{BEGIN}
+@findex BEGIN
+ always occurs.
+
+At compile time @code{BEGIN}
+@findex BEGIN
+ leaves its return address and @var{n} for compiler
+error checking.
+
+        
+
+
+@node BRANCH, DO, BEGIN, CONTROL
+@subsection BRANCH
+@pindex BRANCH
+
+Name: BRANCH
+
+No stackeffect
+
+Attributes: C2,L0
+
+Description: 
+The run-time proceedure to unconditionally branch. An in-line offset
+is added to the interpretive pointer @code{IP}
+@findex IP
+ to branch ahead or back.
+@code{BRANCH}
+@findex BRANCH
+ is compiled by @code{ELSE}
+@findex ELSE
+ , @code{AGAIN}
+@findex AGAIN
+ , @code{REPEAT}
+@findex REPEAT
+ .
+
+        
+
+
+@node DO, ELSE, BRANCH, CONTROL
+@subsection DO
+@pindex DO
+
+Name: DO
+
+Stackeffect: n1 n2 --- (execute)
+addr n --- (compile)
+
+Attributes: P,C2,L0
+
+Description: 
+Occurs in a colon-definition in form:
+    @samp{DO ... LOOP}
+
+At run time, @code{DO}
+@findex DO
+ begins a sequence with repetitive execution
+controlled by a loop limit @var{n1} and an index with initial value @var{n2} . @code{DO}
+@findex DO
+
+removes these from the stack. Upon reaching @code{LOOP}
+@findex LOOP
+ the index is
+incremented by one.
+Until the new index equals or exceeds the limit, execution loops
+back to just after @code{DO}
+@findex DO
+ ; otherwise the loop parameters are discarded
+and execution continues ahead. Both @var{n1} and @var{n2} are determined at
+run-time and may be the result of other operations.
+Within a loop @code{I}
+@findex I
+ will copy the current value of the index to the
+stack.
+
+When compiling within the colon definition, @code{DO}
+@findex DO
+ compiles @code{(DO)}
+@findex (DO)
+ , leaves
+the following address @var{addr} and @var{n} for later error checking.
+
+See also: @samp{I} 
+@samp{LOOP} 
+@samp{+LOOP} 
+@samp{LEAVE} 
+
+
+
+
+        
+
+
+@node ELSE, ENDIF, DO, CONTROL
+@subsection ELSE
+@pindex ELSE
+
+Name: ELSE
+
+Stackeffect: addr1 n1 --- addr2 n2 (compiling)
+
+Attributes: P,C2,L0
+
+Description: 
+Occurs within a colon-definition in the form:
+               @example
+@cartouche IF ... ELSE ... ENDIF
+@end cartouche
+@end example
+At run-time, @code{ELSE}
+@findex ELSE
+ executes after the true part following @code{IF}
+@findex IF
+ . @code{ELSE}
+@findex ELSE
+
+forces execution to skip over the following false part and resumes
+execution after the @code{ENDIF}
+@findex ENDIF
+ . It has no stack effect.
+
+At compile-time @code{ELSE}
+@findex ELSE
+ emplaces @code{BRANCH}
+@findex BRANCH
+ reserving a branch offset,
+leaves the address @var{addr2} and @var{n2} for error testing. @code{ELSE}
+@findex ELSE
+ also
+resolves the pending forward branch from @code{IF}
+@findex IF
+ by calculating the
+offset from @var{addr1} to @code{HERE}
+@findex HERE
+ and storing at @var{addr1} .
+
+        
+
+
+@node ENDIF, END, ELSE, CONTROL
+@subsection ENDIF
+@pindex ENDIF
+
+Name: ENDIF
+
+Stackeffect: addr n --- (compile)
+
+Attributes: P,CO,L0
+
+Description: 
+Occurs in a colon-definition in form:
+ @samp{IF ... ENDIF}                                                                                                                   x
+ @samp{IF ... ELSE ... ENDIF}
+At run-time, @code{ENDIF}
+@findex ENDIF
+ serves only as the destination of a forward
+branch from @code{IF}
+@findex IF
+ or @code{ELSE}
+@findex ELSE
+ . It marks the conclusion of the conditional
+structure. @code{THEN}
+@findex THEN
+ is another name for @code{ENDIF}
+@findex ENDIF
+ . Both names are supported
+in fig-FORTH.
+
+At compile-time, @code{ENDIF}
+@findex ENDIF
+ computes the forward branch offset from @var{addr}
+to @code{HERE}
+@findex HERE
+ and stores it at @var{addr} . @var{n} is used for error tests.
+
+See also: @samp{IF} 
+@samp{ELSE} 
+
+
+        
+
+
+@node END, IF, ENDIF, CONTROL
+@subsection END
+@pindex END
+
+Name: END
+
+No stackeffect
+
+Attributes: P,C2,L0
+
+Description: 
+This is an 'alias' or duplicate definition for @code{UNTIL}
+@findex UNTIL
+ .
+
+See also: @samp{BEGIN} 
+
+        
+
+
+@node IF, I, END, CONTROL
+@subsection IF
+@pindex IF
+
+Name: IF
+
+Stackeffect: f --- (run-time) / --- addr n (compile)
+
+Attributes: P,C2,L0
+
+Description: 
+Occurs is a colon-definition in form:
+      @samp{IF (tp) ...  ENDIF} or
+      @samp{IF (tp) ... ELSE (fp) ... ENDIF}
+At run-time, @code{IF}
+@findex IF
+ selects execution based on a boolean flag. If @var{f} is
+true (non-zero), execution continues ahead thru the true part. If @var{f}
+is false (zero), execution skips till just after @code{ELSE}
+@findex ELSE
+ to execute
+the false part. After either part, execution resumes after @code{ENDIF}
+@findex ENDIF
+ .
+@code{ELSE}
+@findex ELSE
+ and its false part are optional.; if missing, false execution
+skips to just after @code{ENDIF}
+@findex ENDIF
+ .
+
+At compile-time @code{IF}
+@findex IF
+ compiles @code{0BRANCH}
+@findex 0BRANCH
+ and reserves space for an offset
+at @var{addr} . @var{addr} and @var{n} are used later for resolution of the offset and
+error testing.
+
+        
+
+
+@node I, LEAVE, IF, CONTROL
+@subsection I
+@pindex I
+
+Name: I
+
+Stackeffect: --- n
+
+Attributes: C,L0
+
+Description: 
+Used within a do-loop to copy the loop index to the stack. Other use
+is implementation dependent.
+
+See also: @samp{R} 
+
+        
+
+
+@node LEAVE, LOOP, I, CONTROL
+@subsection LEAVE
+@pindex LEAVE
+
+Name: LEAVE
+
+No stackeffect
+
+Attributes: C,L0
+
+Description: 
+Force termination of a do-loop at the next opportunity by setting
+the loop limit equal to the current value of the index. The index
+itself remains unchanged, and execution proceeds normally until @code{LOOP}
+@findex LOOP
+
+or @code{+LOOP}
+@findex +LOOP
+ is encountered.
+
+        
+
+
+@node LOOP, REPEAT, LEAVE, CONTROL
+@subsection LOOP
+@pindex LOOP
+
+Name: LOOP
+
+Stackeffect: addr n --- (compiling)
+
+Attributes: P,C2,L0
+
+Description: 
+Occurs in a colon-definition in form:
+               @samp{DO ... LOOP}
+At run-time, @code{LOOP}
+@findex LOOP
+ selectively controls branching back to the
+corresponding @code{DO}
+@findex DO
+ based on the loop index and limit. The loop index
+is incremented by one and compared to the limit. The branch back to
+@code{DO}
+@findex DO
+ occurs until the index equals or exceeds the limit;
+at that time, the parameters are discarded and execution continues
+ahead.
+
+At compile-time, @code{LOOP}
+@findex LOOP
+ compiles @code{(LOOP)}
+@findex (LOOP)
+ and uses @var{addr} to calculate an
+offset to @var{DO} . @var{n} is used for error testing.
+
+        
+
+
+@node REPEAT, THEN, LOOP, CONTROL
+@subsection REPEAT
+@pindex REPEAT
+
+Name: REPEAT
+
+Stackeffect: addr n --- (compiling)
+
+Attributes: P,C2
+
+Description: 
+Used within a colon-definition in the form:
+                 @samp{BEGIN ... WHILE ... REPEAT}
+At run-time, @code{REPEAT}
+@findex REPEAT
+ forces an unconditional branch back to just
+after the corresponding @code{BEGIN}
+@findex BEGIN
+ .
+
+At compile-time, @code{REPEAT}
+@findex REPEAT
+ compiles @code{BRANCH}
+@findex BRANCH
+ and the offset from @code{HERE}
+@findex HERE
+ to
+addr. @var{n} is used for error testing.
+
+See also: @samp{WHILE} 
+
+        
+
+
+@node THEN, UNTIL, REPEAT, CONTROL
+@subsection THEN
+@pindex THEN
+
+Name: THEN
+
+No stackeffect
+
+Attributes: P,CO,L O
+
+Description: 
+An alias for @code{ENDIF}
+@findex ENDIF
+ .
+
+        
+
+
+@node UNTIL, WHILE, THEN, CONTROL
+@subsection UNTIL
+@pindex UNTIL
+
+Name: UNTIL
+
+Stackeffect: f --- (run-time)
+ addr n --- (compile)
+
+Attributes: P,C2,L0
+
+Description: 
+Occurs within a colon-definition in the form:
+              @samp{BEGIN ... UNTIL}
+At run-time, @code{UNTIL}
+@findex UNTIL
+ controls the conditional branch back to the
+corresponding @code{BEGIN}
+@findex BEGIN
+  If f is false, execution returns to just after
+@code{BEGIN}
+@findex BEGIN
+ .
+if true, execution continues ahead.
+
+At compile-time, @code{UNTIL}
+@findex UNTIL
+ compiles @code{0BRANCH}
+@findex 0BRANCH
+ and an offset from @code{HERE}
+@findex HERE
+ to
+addr. @var{n} is used for error tests.
+
+        
+
+
+@node WHILE, , UNTIL, CONTROL
+@subsection WHILE
+@pindex WHILE
+
+Name: WHILE
+
+Stackeffect: f --- (run-time) / ad1 nl --- ad1 n1 ad2 n2
+
+Attributes: p,C2
+
+Description: 
+Occurs in a colon-definition in the form:
+         @samp{BEGIN ... WHILE (tp) ... REPEAT}
+At run-time, @code{WHILE}
+@findex WHILE
+ selects conditional execution based on boolean
+flag @var{f} . If @var{f} is true (non-zero), @code{WHILE}
+@findex WHILE
+ continues execution of the
+true part thru to @code{REPEAT}
+@findex REPEAT
+ , which then branches back to @code{BEGIN}
+@findex BEGIN
+ . If @var{f} is
+false (zero), execution skips to just after @code{REPEAT}
+@findex REPEAT
+ , exiting the
+structure.
+
+At compile time, @code{WHILE}
+@findex WHILE
+ emplaces @code{0BRANCH}
+@findex 0BRANCH
+ and leaves @var{ad2} of the
+reserved offset. The stack values will be resolved by @code{REPEAT}
+@findex REPEAT
+ .
+
+        
+
+
+
+
+@node DEFINING, DICTIONARY,CONTROL, Glossary
+@section DEFINING
+     
+    The wordset @var{DEFINING} contains words that add new entries
+to the dictionary. A number of such @dfn{defining}
+@cindex defining
+ words
+are predefined, but there is
+also the possibility to make new defining words, using
+@code{<BUILDS}
+@findex <BUILDS
+ and @code{DOES>}
+@findex DOES>
+ .
+
+    
+
+    
+
+@menu
+
+
+* (;CODE)  :paren_semicolon_code
+* :  ::
+* ;CODE  ::
+* ;  ::
+* <BUILDS  ::
+* CONSTANT  ::
+* CREATE  ::
+* DOES>  ::
+* USER  ::
+* VARIABLE  ::
+* VOCABULARY  ::
+@end menu
+@node paren_semicolon_code, :, DEFINING, DEFINING
+@subsection paren_semicolon_code
+@pindex (;CODE)
+
+Name: (;CODE)
+
+No stackeffect
+
+Attributes: C
+
+Description: 
+The run-time proceedure, compiled by @code{;CODE}
+@findex ;CODE
+, that rewrites the code
+field of the most recently defined word to point to the following
+machine code sequence.
+
+See also: @samp{;CODE} 
+
+        
+
+
+@node :, ;CODE, paren_semicolon_code, DEFINING
+@subsection :
+@pindex :
+
+Name: :
+
+No stackeffect
+
+Attributes: P,E,L0
+
+Description: 
+Used in the form called a colon-definition:
+@example
+@cartouche : cccc     ...     ;
+@end cartouche
+@end example
+Creates a dictionary entry defining @var{cccc} as equivalent to the
+following sequence of Forth word definitions '...' until the next
+@code{';'}
+@findex ';'
+ or @code{';CODE'}
+@findex ';CODE'
+ .
+The compiling process is done by the text interpreter as long as
+@code{STATE}
+@findex STATE
+ is non-zero. Other details are that the @code{CONTEXT}
+@findex CONTEXT
+ vocabulary is
+set to the @code{CURRENT}
+@findex CURRENT
+ vocabulary and that words with the precedence bit
+set (P) are executed rather than being compiled.
+
+        
+
+
+@node ;CODE, ;, :, DEFINING
+@subsection ;CODE
+@pindex ;CODE
+
+Name: ;CODE
+
+No stackeffect
+
+Attributes: P,C,L0
+
+Description: 
+Used in the form:
+  @samp{: cccc .... ;CODE}
+assembly mnemonics Stop compilation and terminate a new defining
+word @var{cccc} by compiling @code{(;CODE)}
+@findex (;CODE)
+. Set the @code{CONTEXT}
+@findex CONTEXT
+ vocabulary to
+@code{ASSEMBLER}
+@findex ASSEMBLER
+ , assembling to machine code the following mnemonics.
+
+When @var{cccc} later executes in the form:
+                     @samp{cccc nnnn}
+the word @var{nnnn} will be created with its execution proceedure given by
+the machine code following @var{cccc} .
+That is, when @var{nnnn} is executed, it does so by jumping to the code
+after @var{nnnn} . An existing defining word must exist in @var{cc} prior to
+@code{;CODE}
+@findex ;CODE
+ .
+
+See also: @samp{(;CODE)} 
+
+        
+
+
+@node ;, <BUILDS, ;CODE, DEFINING
+@subsection ;
+@pindex ;
+
+Name: ;
+
+No stackeffect
+
+Attributes: P,C,L0
+
+Description: 
+Terminate a colon-definition and stop further compilation. Compiles
+the run-time @code{;S}
+@findex ;S
+ .
+
+        
+
+
+@node <BUILDS, CONSTANT, ;, DEFINING
+@subsection <BUILDS
+@pindex <BUILDS
+
+Name: <BUILDS
+
+No stackeffect
+
+Attributes: C,L0
+
+Description: 
+Used within a colon-definition:
+         @example
+@cartouche : cccc  <BUILDS  ... DOES>     ...    ;
+@end cartouche
+@end example
+Each time @var{cccc} is executed, @code{<BUILDS}
+@findex <BUILDS
+ defines a new word with a
+high-level execution proceedure. Executing @var{cccc} in the form:
+            @samp{cccc nnnn}
+uses @code{<BUILDS}
+@findex <BUILDS
+ to create a dictionary entry for @var{nnnn} with a call to
+the @code{DOES>}
+@findex DOES>
+ part for @var{nnnn} . When @var{nnnn} is later executed, it has the
+address of its parameter area on the stack and executes the words
+after @code{DOES>}
+@findex DOES>
+ in @var{cccc} . @code{<BUILDS}
+@findex <BUILDS
+ and @code{DOES>}
+@findex DOES>
+ allow runtime proceedures to
+written in high-level rather than in assembler code (as required by
+@code{;CODE}
+@findex ;CODE
+ ). 
+
+        
+
+
+@node CONSTANT, CREATE, <BUILDS, DEFINING
+@subsection CONSTANT
+@pindex CONSTANT
+
+Name: CONSTANT
+
+Stackeffect: n ---
+
+Attributes: L0
+
+Description: 
+A defining word used in the form:
+    @var{n} @code{CONSTANT}
+@findex CONSTANT
+ @var{cccc}
+to create word @var{cccc} , with its parameter field containing @code{n}
+@findex n
+ . When
+@var{cccc} is later executed, it will push the value of @code{n}
+@findex n
+ to the stack.
+
+See also: @samp{VARIABLE} 
+
+        
+
+
+@node CREATE, DOES>, CONSTANT, DEFINING
+@subsection CREATE
+@pindex CREATE
+
+Name: CREATE
+
+No stackeffect
+
+Attributes: 
+
+Description: 
+A defining word used in the form:
+     @code{CREATE}
+@findex CREATE
+ @var{cccc}
+by such words as @code{CODE}
+@findex CODE
+ and @code{CONSTANT}
+@findex CONSTANT
+ to create a dictionary header for
+a Forth definition. The code field contains the address of the words
+parameter field. 
+
+        
+
+
+@node DOES>, USER, CREATE, DEFINING
+@subsection DOES>
+@pindex DOES>
+
+Name: DOES>
+
+No stackeffect
+
+Attributes: L0
+
+Description: 
+A word which defines the run-time action within a high-level
+defining word. @code{DOES>}
+@findex DOES>
+ alters the code field and first parameter of
+the new word to execute the sequence of compiled word addresses
+following @code{DOES>}
+@findex DOES>
+ . Used in combination with @code{<BUILDS}
+@findex <BUILDS
+ . When the @code{DOES>}
+@findex DOES>
+
+part executes it begins with the address of the first parameter of
+the new word on the stack. This allows interpretation using this
+area or its contents. Typical uses include the Forth assembler,
+multidimensional arrays, and compiler generation.
+
+        
+
+
+@node USER, VARIABLE, DOES>, DEFINING
+@subsection USER
+@pindex USER
+
+Name: USER
+
+Stackeffect: n ---
+
+Attributes: L0
+
+Description: 
+A defining word used in the form:
+               @samp{n USER cccc}
+which creates a user variable @var{cccc} .
+The parameter field of @var{cccc} contains @var{n} as a fixed offset relative to
+the user pointer register @samp{UP} for this user variable. When @var{cccc} is
+later executed, it places the sum of its offset and the user area
+base address on the stack as the storage address of that
+particular variable. In fig-Forth the @samp{UP} is fixed.
+
+
+See also: @samp{VARIABLE} 
+@samp{+ORIGIN} 
+
+
+        
+
+
+@node VARIABLE, VOCABULARY, USER, DEFINING
+@subsection VARIABLE
+@pindex VARIABLE
+
+Name: VARIABLE
+
+No stackeffect
+
+Attributes: NISO,E,LU
+
+Description: 
+A defining word used in the form:
+                 @samp{n VARIABLE cccc}
+When @code{VARIABLE}
+@findex VARIABLE
+ is executed, it creates the definition @var{cccc} with its
+parameter field initialized to @var{n} . When @var{cccc} is later executed, the
+address of its parameter field (containing @var{n} ) is left on the stack,
+so that a fetch or store may access this location.
+
+See also: @samp{USER} 
+@samp{CONSTANT} 
+
+
+        
+
+
+@node VOCABULARY, , VARIABLE, DEFINING
+@subsection VOCABULARY
+@pindex VOCABULARY
+
+Name: VOCABULARY
+
+No stackeffect
+
+Attributes: E,L
+
+Description: 
+A defining word used in the form:
+            @code{VOCABULARY}
+@findex VOCABULARY
+ @var{cccc}
+to create a vocabulary definition @var{cccc} . Subsequent use of @var{cccc} will
+make it the @code{CONTEXT}
+@findex CONTEXT
+ vocabulary which is searched first by @code{INTERPRET}
+@findex INTERPRET
+ .
+The sequence @var{cccc} @code{DEFINITIONS}
+@findex DEFINITIONS
+ also make @var{cccc} the @code{CURRENT}
+@findex CURRENT
+
+vocabulary into which new definitions are placed.
+
+A vocabulary parameter field contains at first the dovoc pointer, then it
+contains a dummy name field (@code{DFNA}
+@findex DFNA
+) with a name " " (blank) ,
+a dummy link field (@code{DLFA}
+@findex DLFA
+) and
+the vocabulary link field address ( @dfn{VLFA}
+@cindex VLFA
+ ).
+Actually executing the vocabulary means storing its DLFA into @code{CONTEXT}
+@findex CONTEXT
+ .
+The VLFA points to the VLFA of the next vocabulary or 0 for the end.
+
+In fig-FORTH, cccc will be so chained as to include all definitions
+of the vocabulary in which @var{cccc} is itself defined. All vocabularys
+ultimately chain to Forth.
+By convention, vocabulary names are to be
+declared @code{IMMEDIATE}
+@findex IMMEDIATE
+ .
+
+See also: @samp{VOC-LINK} 
+
+        
+
+
+
+
+@node DICTIONARY, DOUBLE,DEFINING, Glossary
+@section DICTIONARY
+     
+    The wordset @var{DICTIONARY} contains words that at a lower level than
+the wordset @var{DEFINING} concern the memory area that
+is allocated to the dictionary. They may add data to the dictionary at the expense
+of the free space, one cell or one byte at a time, or allocate a buffer at once.
+The dictionary space may also be shrunk, and the words that were there are lost.
+The @dfn{dictionary entry}
+@cindex dictionary entry
+ of a word is represented by its lowest address. Based on that
+an entry may considered a record with fields. Words to access those fields also belong
+to this wordset.
+    
+
+    
+
+@menu
+
+
+* '  :tick
+* (FIND)  :paren_find
+* ,  :comma
+* -FIND  ::
+* ALLOT  ::
+* C,  :c_comma
+* CFA  ::
+* DP  ::
+* FENCE  ::
+* FOR-VOCS  ::
+* FOR-WORDS  ::
+* FORGET-VOC  ::
+* FORGET  ::
+* HERE  ::
+* ID.  ::
+* IMMEDIATE  ::
+* LFA  ::
+* NFA  ::
+* PAD  ::
+* PFA  ::
+* SMUDGE  ::
+* TRAVERSE  ::
+* VLIST  ::
+* WIDTH  ::
+@end menu
+@node tick, paren_find, DICTIONARY, DICTIONARY
+@subsection tick
+@pindex '
+
+Name: '
+
+Stackeffect: --- addr
+
+Attributes: P,L0
+
+Description: 
+Used in the form: .
+@code{'}
+@findex '
+ @code{nnnn}
+@findex nnnn
+
+Leaves the parameter field address of dictionary word @var{nnnn}.
+As a compiler directive, executes in a colon-definition to compile
+the address as a literal. If the word is not found after a search of
+@code{CONTEXT}
+@findex CONTEXT
+ and @code{CURRENT}
+@findex CURRENT
+ , an appropriate error message is given.
+
+See also: @samp{CFA} 
+@samp{LFA} 
+@samp{NFA} 
+@samp{PFA } 
+
+
+
+
+        
+
+
+@node paren_find, comma, tick, DICTIONARY
+@subsection paren_find
+@pindex (FIND)
+
+Name: (FIND)
+
+Stackeffect: addr1 addr2 --- pfa b tf (ok)
+addr1 addr2 .--- ff (bad)
+
+Attributes: 
+
+Description: 
+Searches the dictionary starting at the name field address @var{addr2},
+matching to the text at @var{addr1}. Returns parameter field address,
+length byte of name field and boolean true for a good match. If no
+match is found, only a boolean false is left.
+
+See also: @samp{FIND} 
+
+        
+
+
+@node comma, -FIND, paren_find, DICTIONARY
+@subsection comma
+@pindex ,
+
+Name: ,
+
+Stackeffect: n ---
+
+Attributes: L0
+
+Description: 
+Store @var{n} into the next available dictionary memory cell, advancing
+the dictionary pointer.
+
+See also: @samp{DP} 
+@samp{C} 
+
+
+        
+
+
+@node -FIND, ALLOT, comma, DICTIONARY
+@subsection -FIND
+@pindex -FIND
+
+Name: -FIND
+
+Stackeffect: --- pfa b tf (found) --- ff (not found)
+
+Attributes: 
+
+Description: 
+Accepts the next text word (delimited by blanks) in the input stream
+to @code{HERE}
+@findex HERE
+ , and searches the @code{CONTEXT}
+@findex CONTEXT
+ and then @code{CURRENT}
+@findex CURRENT
+ vocabularies
+for a matching entry. If found, the dictionary entry's parameter
+field address, its length byte, and a boolean true is left.
+Otherwise, only a boolean false is left.
+
+See also: @samp{(FIND)} 
+
+        
+
+
+@node ALLOT, c_comma, -FIND, DICTIONARY
+@subsection ALLOT
+@pindex ALLOT
+
+Name: ALLOT
+
+Stackeffect: n ---
+
+Attributes: L0
+
+Description: 
+Add the signed number to the dictionary pointer @code{DP}
+@findex DP
+ . May be used to
+reserve dictionary space or re-origin memory. As the Pentium is a byte-addressable
+machine @var{n} counts bytes. 
+
+See also: @samp{CELL+} 
+
+        
+
+
+@node c_comma, CFA, ALLOT, DICTIONARY
+@subsection c_comma
+@pindex C,
+
+Name: C,
+
+Stackeffect: b ---
+
+Attributes: 
+
+Description: 
+Store 8 bits of @code{b}
+@findex b
+ into the next available dictionary byte, advancing
+the dictionary pointer. 
+
+See also: @samp{DP} 
+@samp{} 
+
+
+        
+
+
+@node CFA, DP, c_comma, DICTIONARY
+@subsection CFA
+@pindex CFA
+
+Name: CFA
+
+Stackeffect: pfa --- cfa
+
+Attributes: 
+
+Description: 
+Convert the parameter field address of a definition to its code
+field address.
+
+See also: @samp{'} 
+@samp{PFA} 
+
+
+        
+
+
+@node DP, FENCE, CFA, DICTIONARY
+@subsection DP
+@pindex DP
+
+Name: DP
+
+Stackeffect: ---- addr
+
+Attributes: U,L
+
+Description: 
+A user variable, the dictionary pointer, which contains the address
+of the next free memory above the dictionary. The value may be read
+by @code{HERE}
+@findex HERE
+ and altered by @code{ALLOT}
+@findex ALLOT
+ .
+
+        
+
+
+@node FENCE, FOR-VOCS, DP, DICTIONARY
+@subsection FENCE
+@pindex FENCE
+
+Name: FENCE
+
+Stackeffect: ---  addr
+
+Attributes: U
+
+Description: 
+A user variable containing an address below which @code{FORGET}
+@findex FORGET
+ ting is
+trapped. To forget below this point the user must alter the contents
+of @code{FENCE}
+@findex FENCE
+ .
+
+        
+
+
+@node FOR-VOCS, FOR-WORDS, FENCE, DICTIONARY
+@subsection FOR-VOCS
+@pindex FOR-VOCS
+
+Name: FOR-VOCS
+
+Stackeffect: x1..xn xt ---
+
+Attributes: 
+
+Description: 
+For all vocabularies execute @var{xt}
+ with as data the @dfn{VLFA}
+@cindex VLFA
+ of those words. @var{xt}
+must have the stack diagram @samp{x1..xn vlfa --- x1..xn}
+
+
+See also: @samp{FOR-WORDS} 
+@samp{EXECUTE} 
+
+
+        
+
+
+@node FOR-WORDS, FORGET-VOC, FOR-VOCS, DICTIONARY
+@subsection FOR-WORDS
+@pindex FOR-WORDS
+
+Name: FOR-WORDS
+
+Stackeffect: x1...xn xt ---
+
+Attributes: 
+
+Description: 
+For all words in the current context execute @var{xt}
+ with as data @var{x1..xn} plus
+the @code{NFA}
+@findex NFA
+ of those words.         @var{xt}
+must have the stack diagram @samp{x1..xn nfa --- x1..xn}
+
+
+See also: @samp{FOR-VOCS} 
+@samp{EXECUTE} 
+
+
+        
+
+
+@node FORGET-VOC, FORGET, FOR-WORDS, DICTIONARY
+@subsection FORGET-VOC
+@pindex FORGET-VOC
+
+Name: FORGET-VOC
+
+Stackeffect: n1 addr -- n1 
+
+Attributes: 
+
+Description: 
+Forget all words below @var{n1} from the vocabulary
+whose VLFA is given by @var{addr} . Leave n1 as this word is
+intended to be used with @code{FOR-VOCS}
+@findex FOR-VOCS
+ .
+
+See also: @samp{FORGET} 
+
+        
+
+
+@node FORGET, HERE, FORGET-VOC, DICTIONARY
+@subsection FORGET
+@pindex FORGET
+
+Name: FORGET
+
+No stackeffect
+
+Attributes: E,L0
+
+Description: 
+Executed in the form:
+               @code{FORGET}
+@findex FORGET
+ @var{cccc}
+ Deletes definition named @var{cccc} from the dictionary with all entries
+physically following it. In fig-FORTH, an error message will occur
+if the @code{CURRENT}
+@findex CURRENT
+ and @code{CONTEXT}
+@findex CONTEXT
+ vocabularies are not currently the same.
+
+See also: @samp{FENCE} 
+
+        
+
+
+@node HERE, ID., FORGET, DICTIONARY
+@subsection HERE
+@pindex HERE
+
+Name: HERE
+
+Stackeffect: --- addr
+
+Attributes: L0
+
+Description: 
+Leave the address of the next available dictionary location.
+
+See also: @samp{DP} 
+
+        
+
+
+@node ID., IMMEDIATE, HERE, DICTIONARY
+@subsection ID.
+@pindex ID.
+
+Name: ID.
+
+Stackeffect: addr --
+
+Attributes: 
+
+Description: 
+Print a definition's name from its name field address.
+
+See also: @samp{'} 
+@samp{PFA} 
+@samp{NFA} 
+
+
+
+        
+
+
+@node IMMEDIATE, LFA, ID., DICTIONARY
+@subsection IMMEDIATE
+@pindex IMMEDIATE
+
+Name: IMMEDIATE
+
+No stackeffect
+
+Attributes: 
+
+Description: 
+Mark the most recently made definition so that when encountered at
+compile time, it will be executed rather than being compiled, i.e.
+the precedence bit in its header is set.
+This method allows definitions to handle unusual compiling
+situations, rather than build them into the fundamental compiler.
+The user may force compilation of an immediate definition by
+preceeding it with @code{[COMPILE]}
+@findex [COMPILE]
+ .
+
+        
+
+
+@node LFA, NFA, IMMEDIATE, DICTIONARY
+@subsection LFA
+@pindex LFA
+
+Name: LFA
+
+Stackeffect: pfa --- lfa
+
+Attributes: 
+
+Description: 
+Convert the parameter field address of a dictionary definition to
+its link field address.
+
+See also: @samp{'} 
+@samp{PFA} 
+
+
+        
+
+
+@node NFA, PAD, LFA, DICTIONARY
+@subsection NFA
+@pindex NFA
+
+Name: NFA
+
+Stackeffect: pfa --- nfa
+
+Attributes: 
+
+Description: 
+Convert the parameter field address of a definition to its name
+field.
+
+See also: @samp{'} 
+@samp{PFA} 
+
+
+        
+
+
+@node PAD, PFA, NFA, DICTIONARY
+@subsection PAD
+@pindex PAD
+
+Name: PAD
+
+Stackeffect: --- addr
+
+Attributes: L0
+
+Description: 
+Leave the address of the text output buffer, which is a fixed offset
+above @code{HERE}
+@findex HERE
+ .
+
+        
+
+
+@node PFA, SMUDGE, PAD, DICTIONARY
+@subsection PFA
+@pindex PFA
+
+Name: PFA
+
+Stackeffect: nfa --- pfa
+
+Attributes: 
+
+Description: 
+Convert the name field address of a compiled definition to its
+parameter field address.
+
+See also: @samp{'} 
+@samp{CFA} 
+@samp{LFA} 
+@samp{NFA} 
+
+
+
+
+        
+
+
+@node SMUDGE, TRAVERSE, PFA, DICTIONARY
+@subsection SMUDGE
+@pindex SMUDGE
+
+Name: SMUDGE
+
+No stackeffect
+
+Attributes: 
+
+Description: 
+Used during word definition to toggle the "smudge bit" in a
+definitions' name field. This prevents an uncompleted definition
+from being found during dictionary searches, until compiling is
+completed without error.
+
+See also: @samp{IMMEDIATE} 
+
+        
+
+
+@node TRAVERSE, VLIST, SMUDGE, DICTIONARY
+@subsection TRAVERSE
+@pindex TRAVERSE
+
+Name: TRAVERSE
+
+Stackeffect: addr1 n --- addr2
+
+Attributes: 
+
+Description: 
+Move across the name field of a fig-FORTH variable length name
+field.
+@var{addr1} is the address of either the length byte or the last letter.
+If @var{n}=1, the motion is toward hi memory; if @var{n}=-l, the motion is
+toward low memory. The @var{addr2} resulting is address of the other end
+of the name.
+ 
+
+See also: @samp{NFA} 
+@samp{PFA} 
+
+
+        
+
+
+@node VLIST, WIDTH, TRAVERSE, DICTIONARY
+@subsection VLIST
+@pindex VLIST
+
+Name: VLIST
+
+No stackeffect
+
+Attributes: 
+
+Description: 
+List the names of the definitions in the context vocabulary.
+ 
+
+        
+
+
+@node WIDTH, , VLIST, DICTIONARY
+@subsection WIDTH
+@pindex WIDTH
+
+Name: WIDTH
+
+Stackeffect: --- addr
+
+Attributes: U
+
+Description: 
+In fig-FORTH, a user variable containing the maximum number of
+letters saved in the compilation of a definitions' name.
+( Characters not saved need not match in a dictionary search).
+It must be 1 thru 31, with a default value of 31. The name character count and
+its natural characters are saved, up to the value in @code{WIDTH}
+@findex WIDTH
+ . The
+value may be changed at any time within the above limits.
+
+        
+
+
+
+
+@node DOUBLE, ERRORS,DICTIONARY, Glossary
+@section DOUBLE
+     
+    The wordset @var{DOUBLE} contains words that manipulate @dfn{double}
+@cindex double
+'s.
+In this 32 Forth you would never need double's if it weren't
+for the NUMBER formatting wordset that uses them exclusively.
+    
+
+    
+
+@menu
+
+
+* D+  ::
+* DABS  ::
+* DMINUS  ::
+* S->D  ::
+@end menu
+@node D+, DABS, DOUBLE, DOUBLE
+@subsection D+
+@pindex D+
+
+Name: D+
+
+Stackeffect: d1 d2 --- dsum
+
+Attributes: 
+
+Description: 
+Leave the double number sum of two double numbers.
+
+See also: @samp{DMINUS} 
+@samp{+} 
+
+
+        
+
+
+@node DABS, DMINUS, D+, DOUBLE
+@subsection DABS
+@pindex DABS
+
+Name: DABS
+
+Stackeffect: d --- ud
+
+Attributes: 
+
+Description: 
+Leave the absolute value @var{ud} of a double number.
+
+See also: @samp{DMINUS} 
+
+        
+
+
+@node DMINUS, S->D, DABS, DOUBLE
+@subsection DMINUS
+@pindex DMINUS
+
+Name: DMINUS
+
+Stackeffect: d1 --- d2
+
+Attributes: 
+
+Description: 
+Leave the double number two's complement of a double number, i.e.
+ @var{d2} is @var{-d1} 
+
+See also: @samp{D+} 
+
+        
+
+
+@node S->D, , DMINUS, DOUBLE
+@subsection S->D
+@pindex S->D
+
+Name: S->D
+
+Stackeffect: n --- d
+
+Attributes: 
+
+Description: 
+Sign extend a single number to form a double number.
+
+        
+
+
+
+
+@node ERRORS, FORMATTING,DOUBLE, Glossary
+@section ERRORS
+     
+    The wordset @var{ERRORS} contains words to handle errors.
+    
+
+    
+
+@menu
+
+
+* ?ERROR  ::
+* ERROR  ::
+* MESSAGE  ::
+* WARNING  ::
+@end menu
+@node ?ERROR, ERROR, ERRORS, ERRORS
+@subsection ?ERROR
+@pindex ?ERROR
+
+Name: ?ERROR
+
+Stackeffect: f n --
+
+Attributes: 
+
+Description: 
+  Issue an error message number @code{n}
+@findex n
+ , if the boolean flag is true.
+
+See also: @samp{ERROR} 
+
+        
+
+
+@node ERROR, MESSAGE, ?ERROR, ERRORS
+@subsection ERROR
+@pindex ERROR
+
+Name: ERROR
+
+Stackeffect: line --- in blk
+
+Attributes: 
+
+Description: 
+Execute error notification and restart of system. @code{WARNING}
+@findex WARNING
+ is first
+examined. If 1, the text of line @var{n} , relative to screen 4 of drive O
+is printed. This line number may be positive or negative, and beyond
+just screen 4. If @code{WARNING}
+@findex WARNING
+ is zero, @var{n} is just printed as a message number
+(non disc installation). If @code{WARNING}
+@findex WARNING
+ is -l, the definition @code{(ABORT)}
+@findex (ABORT)
+ is
+executed, normally a warm start via @code{QUIT}
+@findex QUIT
+ .
+
+See also: @samp{QERROR} 
+
+        
+
+
+@node MESSAGE, WARNING, ERROR, ERRORS
+@subsection MESSAGE
+@pindex MESSAGE
+
+Name: MESSAGE
+
+Stackeffect: n --
+
+Attributes: 
+
+Description: 
+Print on the selected output device the text of line @var{n} relative to
+screen 4 of drive 0. @var{n} may be positive or negative. @code{MESSAGE}
+@findex MESSAGE
+ may be
+used to print incidental text such as report headers. If @code{WARNING}
+@findex WARNING
+ is
+zero, the message will simply be printed as a number (disc
+unavailable).
+
+        
+
+
+@node WARNING, , MESSAGE, ERRORS
+@subsection WARNING
+@pindex WARNING
+
+Name: WARNING
+
+Stackeffect: --- addr
+
+Attributes: U
+
+Description: 
+A user variable containing a value controlling messages. If = 1 disc
+is present, and screen 4 of drive 0 is the base location for
+messages. If = 0, no disc is present and messages will be presented
+by number. If = -1, execute @code{(ABORT)}
+@findex (ABORT)
+ for a user specified proceedure.
+
+
+See also: @samp{MESSAGE} 
+@samp{ERROR} 
+
+
+        
+
+
+
+
+@node FORMATTING, INIT,ERRORS, Glossary
+@section FORMATTING
+     
+    The wordset @var{FORMATTING} generates formatted output for
+numbers, i.e. printing the digits in a field with a certain width,
+possibly with sign etc.
+This is possible in any @dfn{number base}
+@cindex number base
+. (Normally base 10 is used,
+which means that digits are found as a remainder by dividing by 10).
+Formatting in Forth is always based on @dfn{double}
+@cindex double
+ numbers.
+Single numbers are handled by converting them to @dfn{double}
+@cindex double
+ first.
+This requires some double precision operators to be present in the Forth core.
+@xref{DOUBLE} wordset. @xref{MULTIPLYING} wordset.
+
+    
+
+    
+
+@menu
+
+
+* #>  ::
+* #S  ::
+* #  ::
+* (NUMBER)  :paren_number
+* +-  ::
+* <#  ::
+* BASE  ::
+* D+-  ::
+* DECIMAL  ::
+* DIGIT  ::
+* DPL  ::
+* FLD  ::
+* HEX  ::
+* HLD  ::
+* HOLD  ::
+* NUMBER  ::
+* SIGN  ::
+@end menu
+@node #>, #S, FORMATTING, FORMATTING
+@subsection #>
+@pindex #>
+
+Name: #>
+
+Stackeffect: d --- addr count
+
+Attributes: L0
+
+Description: 
+Terminates numeric output conversion by dropping @var{d}, leaving the text
+address and character count suitable for @code{TYPE}
+@findex TYPE
+.
+
+        
+
+
+@node #S, #, #>, FORMATTING
+@subsection #S
+@pindex #S
+
+Name: #S
+
+Stackeffect: d1 --- d2
+
+Attributes: L0
+
+Description: 
+Generates ascii text in the text output buffer, by the use of @code{#}
+@findex #
+,
+until a zero double number @var{n2} results.
+Used between @code{<#}
+@findex <#
+ and @code{#>}
+@findex #>
+.
+
+        
+
+
+@node #, paren_number, #S, FORMATTING
+@subsection #
+@pindex #
+
+Name: #
+
+Stackeffect: d1 --- d2
+
+Attributes: L0
+
+Description: 
+Generate from a double number @var{d1}, the next ascii character which is
+placed in an output string. Result @var{d2} is the quotient after division
+by @code{BASE}
+@findex BASE
+, and is maintained for further processing. Used between @code{<#}
+@findex <#
+
+and @code{#>}
+@findex #>
+.
+
+See also: @samp{#S } 
+
+        
+
+
+@node paren_number, +-, #, FORMATTING
+@subsection paren_number
+@pindex (NUMBER)
+
+Name: (NUMBER)
+
+Stackeffect: d1 addr1 --- d2 addr2
+
+Attributes: 
+
+Description: 
+Convert the ascii text beginning at @var{addr1+l} with regard to @code{BASE}
+@findex BASE
+ . The
+new value is accumulated into double number @var{d1} , being left as double number
+@var{d2} .
+ @var{addr2} is the address of the first unconvertable digit.
+
+See also: @samp{NUMBER} 
+
+        
+
+
+@node +-, <#, paren_number, FORMATTING
+@subsection +-
+@pindex +-
+
+Name: +-
+
+Stackeffect: n1 n2 --- n3
+
+Attributes: 
+
+Description: 
+Apply the sign of @var{n2} to @var{n1} , which is left as @var{n3} .
+
+See also: @samp{SIGN} 
+@samp{#S} 
+@samp{<#} 
+@samp{D+-} 
+
+
+
+
+        
+
+
+@node <#, BASE, +-, FORMATTING
+@subsection <#
+@pindex <#
+
+Name: <#
+
+No stackeffect
+
+Attributes: L0
+
+Description: 
+Setup for pictured numeric output formatting using the words:
+   @code{<#}
+@findex <#
+ @code{#}
+@findex #
+ @code{#S}
+@findex #S
+ @code{SIGN}
+@findex SIGN
+ @code{#>}
+@findex #>
+
+The conversion is done on a double number producing
+text at @code{PAD}
+@findex PAD
+ .
+
+See also: @samp{DPL} 
+@samp{HLD} 
+@samp{HOLD} 
+@samp{FLD} 
+
+
+
+
+        
+
+
+@node BASE, D+-, <#, FORMATTING
+@subsection BASE
+@pindex BASE
+
+Name: BASE
+
+Stackeffect: --- addr
+
+Attributes: U,L0
+
+Description: 
+A user variable containing the current number base used for input
+and output conversion.
+
+See also: @samp{DECIMAL} 
+@samp{HEX} 
+@samp{<#} 
+
+
+
+        
+
+
+@node D+-, DECIMAL, BASE, FORMATTING
+@subsection D+-
+@pindex D+-
+
+Name: D+-
+
+Stackeffect: d1 n --- d2
+
+Attributes: 
+
+Description: 
+Apply the sign of @var{n} to the double number @var{d1} , leaving it as @var{d2} .
+
+
+See also: @samp{SIGN} 
+@samp{#S} 
+@samp{<#} 
+@samp{+-} 
+
+
+
+
+        
+
+
+@node DECIMAL, DIGIT, D+-, FORMATTING
+@subsection DECIMAL
+@pindex DECIMAL
+
+Name: DECIMAL
+
+No stackeffect
+
+Attributes: L0
+
+Description: 
+Set the numeric conversion @code{BASE}
+@findex BASE
+ for decimal input-output.
+
+See also: @samp{HEX} 
+
+        
+
+
+@node DIGIT, DPL, DECIMAL, FORMATTING
+@subsection DIGIT
+@pindex DIGIT
+
+Name: DIGIT
+
+Stackeffect: c n1 --- n2 tf (ok) c n1 --- ff (bad)
+
+Attributes: 
+
+Description: 
+Converts the ascii character @var{c} (using base @var{n1} ) to its binary
+equivalent @var{n2} , accompanied by a true flag. If the conversion is
+invalid, leaves only a false flag.
+
+        
+
+
+@node DPL, FLD, DIGIT, FORMATTING
+@subsection DPL
+@pindex DPL
+
+Name: DPL
+
+Stackeffect: ---- addr
+
+Attributes: U,L0
+
+Description: 
+A user variable containing the number of digits to the right of the
+decimal on double integer input. It may also be used hold output
+column location of a decimal point, in user generated formating. The
+default value on single number input is -1.
+
+See also: @samp{<#} 
+@samp{FLD} 
+@samp{HLD} 
+
+
+
+        
+
+
+@node FLD, HEX, DPL, FORMATTING
+@subsection FLD
+@pindex FLD
+
+Name: FLD
+
+Stackeffect: --- addr
+
+Attributes: U
+
+Description: 
+A user variable for control of number output field width. Presently
+unused in fig-FORTH.
+
+        
+
+
+@node HEX, HLD, FLD, FORMATTING
+@subsection HEX
+@pindex HEX
+
+Name: HEX
+
+No stackeffect
+
+Attributes: L0
+
+Description: 
+Set the numeric conversion @code{BASE}
+@findex BASE
+ for hexadecimal (base 16) input-output.
+
+See also: @samp{DECIMAL} 
+
+        
+
+
+@node HLD, HOLD, HEX, FORMATTING
+@subsection HLD
+@pindex HLD
+
+Name: HLD
+
+Stackeffect: --- addr
+
+Attributes: L0
+
+Description: 
+A user variable that holds the address of the latest character of
+text during numeric output conversion.
+
+See also: @samp{<#} 
+@samp{DPL} 
+@samp{FLD} 
+
+
+
+        
+
+
+@node HOLD, NUMBER, HLD, FORMATTING
+@subsection HOLD
+@pindex HOLD
+
+Name: HOLD
+
+Stackeffect: c ---
+
+Attributes: ISO FIG
+
+Description: 
+Add the character @var{c} to the beginning of the output string.
+It must be executed for numeric formatting inside a @code{<#}
+@findex <#
+
+and @code{#>}
+@findex #>
+ construct .
+
+
+See also: @samp{#} 
+@samp{DIGIT} 
+
+
+        
+
+
+@node NUMBER, SIGN, HOLD, FORMATTING
+@subsection NUMBER
+@pindex NUMBER
+
+Name: NUMBER
+
+Stackeffect: addr --- d
+
+Attributes: 
+
+Description: 
+Convert a character string left at @var{addr} with a preceeding count, to
+a signed double number @var{d} , using the current numeric base. If a
+decimal point is encountered in the text, its position will be
+given in @code{DPL}
+@findex DPL
+ , but no other effect occurs. If numeric conversion is
+not possible, an error message will be given.
+
+See also: @samp{BASE} 
+
+        
+
+
+@node SIGN, , NUMBER, FORMATTING
+@subsection SIGN
+@pindex SIGN
+
+Name: SIGN
+
+Stackeffect: n d --- d
+
+Attributes: L0
+
+Description: 
+Stores an ascii "-" sign just before a converted numeric output
+string in the text output buffer when @var{n} is negative. @var{n} is discarded
+but double number @var{d} is maintained. Must be used between @code{<#}
+@findex <#
+ and @code{#>}
+@findex #>
+ .
+
+See also: @samp{+-} 
+@samp{D+-} 
+
+
+        
+
+
+
+
+@node INIT, INPUT,FORMATTING, Glossary
+@section INIT
+     
+    The wordset @var{INIT} contains words to initialise or reinitialise Forth.
+    
+
+    
+
+@menu
+
+
+* (ABORT)  :paren_abort
+* +ORIGIN  ::
+* ABORT  ::
+* COLD  ::
+* QUIT  ::
+* WARM  ::
+@end menu
+@node paren_abort, +ORIGIN, INIT, INIT
+@subsection paren_abort
+@pindex (ABORT)
+
+Name: (ABORT)
+
+No stackeffect
+
+Attributes: 
+
+Description: 
+Executes after an error when @code{WARNING}
+@findex WARNING
+ is -1. This word normally
+executes @code{ABORT}
+@findex ABORT
+, but may be altered (with care) to a user's
+alternative proceedure @var{AP} as follows:
+@samp{' AP CFA   ' (ABORT) !}.
+
+
+        
+
+
+@node +ORIGIN, ABORT, paren_abort, INIT
+@subsection +ORIGIN
+@pindex +ORIGIN
+
+Name: +ORIGIN
+
+Stackeffect: n --- addr
+
+Attributes: 
+
+Description: 
+Leave the memory address relative by @var{n} bytes
+to the area from which the user variables are initialised,
+so one can access or modify the boot-up parameters.
+A user variable addresses with an offset from the
+initialisation for @var{U0}, which is at @samp{0 CELL+ +ORIGIN }.
+This can be swapped to get a fresh set of user variables.
+One can access or modify the boot-up parameters, prior to saving a
+customised boot image, or to change the initialisation by @code{COLD}
+@findex COLD
+.
+
+
+See also: @samp{(ABORT)} 
+@samp{USER} 
+
+
+        
+
+
+@node ABORT, COLD, +ORIGIN, INIT
+@subsection ABORT
+@pindex ABORT
+
+Name: ABORT
+
+No stackeffect
+
+Attributes: FIG NISO L0
+
+Description: 
+Clear the stacks and enter the execution state. Set BASE to
+decimal.Note how this is different from COLD  Return control to the operators
+terminal, printing a startup message with the version number.
+
+
+See also: @samp{WARM} 
+
+        
+
+
+@node COLD, QUIT, ABORT, INIT
+@subsection COLD
+@pindex COLD
+
+Name: COLD
+
+No stackeffect
+
+Attributes: FIG
+
+Description: 
+The cold start proceedure to adjust all user variables to their intial
+values, i.a. the stacks and the dictionary pointers. Restart via
+@code{ABORT}
+@findex ABORT
+ . May be called from the terminal to remove
+application programs and restart.
+
+Opens the file that contains the blocks.
+
+
+See also: @samp{WARM} 
+@samp{BLOCK} 
+@samp{LIST} 
+
+
+
+        
+
+
+@node QUIT, WARM, COLD, INIT
+@subsection QUIT
+@pindex QUIT
+
+Name: QUIT
+
+No stackeffect
+
+Attributes: 
+
+Description: 
+Clear the return stack, stop compilation, and return control to the
+operators terminal. No message is given.
+
+        
+
+
+@node WARM, , QUIT, INIT
+@subsection WARM
+@pindex WARM
+
+Name: WARM
+
+No stackeffect
+
+Attributes: FIG L0
+
+Description: 
+Discard blocks; they may not be written back to mass storage.
+Clear the stacks and enter the execution state. Return control to
+the operators terminal, printing a startup message with the version number.
+
+
+See also: @samp{ABORT} 
+
+        
+
+
+
+
+@node INPUT, JUGGLING,INIT, Glossary
+@section INPUT
+     
+    The wordset @var{INPUT} contains words to get input from the terminal
+and such. For disk I/O: @xref{STORAGE} 
+    
+
+    
+
+@menu
+
+
+* ?TERMINAL  ::
+* EXPECT  ::
+* IN  ::
+* KEY  ::
+* RUBOUT  ::
+* SET-TERM  ::
+* TERMIO  ::
+* TIB  ::
+@end menu
+@node ?TERMINAL, EXPECT, INPUT, INPUT
+@subsection ?TERMINAL
+@pindex ?TERMINAL
+
+Name: ?TERMINAL
+
+Stackeffect: --- f
+
+Attributes: 
+
+Description: 
+Perform a test of the terminal keyboard for a break request.
+Any key pressed is interpreted as such and the key is consumed.
+A true flag indicates actuation. 
+
+See also: @samp{KEY} 
+@samp{EXPECT} 
+
+
+        
+
+
+@node EXPECT, IN, ?TERMINAL, INPUT
+@subsection EXPECT
+@pindex EXPECT
+
+Name: EXPECT
+
+Stackeffect: addr count ---
+
+Attributes: ISO FIG L0
+
+Description: 
+Transfer characters from the terminal to address, until a "return"
+or the count of characters have been received.
+Rely on the operating system for input editing.
+One or more nulls are added at the end of the text.
+
+See also: @samp{KEY} 
+@samp{?TERMINAL} 
+
+
+        
+
+
+@node IN, KEY, EXPECT, INPUT
+@subsection IN
+@pindex IN
+
+Name: IN
+
+Stackeffect: --- addr
+
+Attributes: L0
+
+Description: 
+A user variable containing the byte offset within the current input
+text buffer (terminal or disc) from which the next text will be
+accepted. @code{WORD}
+@findex WORD
+ uses and moves the value of @code{IN}
+@findex IN
+ .
+
+        
+
+
+@node KEY, RUBOUT, IN, INPUT
+@subsection KEY
+@pindex KEY
+
+Name: KEY
+
+Stackeffect: --- c
+
+Attributes: ISO FIG L0
+
+Description: 
+Leave the ascii value of the next terminal key struck.
+
+See also: @samp{EXPECT} 
+@samp{?TERMINAL} 
+
+
+        
+
+
+@node RUBOUT, SET-TERM, KEY, INPUT
+@subsection RUBOUT
+@pindex RUBOUT
+
+Name: RUBOUT
+
+Stackeffect: --- c
+
+Attributes: 
+
+Description: 
+A user variable, leaving the key code that must delete the
+last character from the input buffer.
+In this fig-Forth it is not used
+
+
+See also: @samp{USER} 
+
+        
+
+
+@node SET-TERM, TERMIO, RUBOUT, INPUT
+@subsection SET-TERM
+@pindex SET-TERM
+
+Name: SET-TERM
+
+Stackeffect: len b --- 
+
+Attributes: 
+
+Description: 
+Set the terminal length to @var{len} and toggle the c_lflag field
+with @var{b} in the termio structure @code{TERMIO}
+@findex TERMIO
+ .
+In particular toggling with 0AH makes that
+the terminal doesn't wait for a <return>.
+
+
+See also: @samp{SET-TERM} 
+
+        
+
+
+@node TERMIO, TIB, SET-TERM, INPUT
+@subsection TERMIO
+@pindex TERMIO
+
+Name: TERMIO
+
+Stackeffect: --- addr
+
+Attributes: 
+
+Description: 
+Leave the address of the terminal description, this has the layout of
+a the c-structure @samp{termio} .
+
+
+See also: @samp{SET-TERM} 
+
+        
+
+
+@node TIB, , TERMIO, INPUT
+@subsection TIB
+@pindex TIB
+
+Name: TIB
+
+Stackeffect: --- addr
+
+Attributes: U
+
+Description: 
+A user variable containing the address of the terminal input buffer.
+
+        
+
+
+
+
+@node JUGGLING, LOGIC,INPUT, Glossary
+@section JUGGLING
+     
+    The wordset @var{JUGGLING} contains words that change the lifo-buffer.
+The necessity for this arise, because the data you want to feed to a program
+is not directly accessible, i.e. on top of the stack.
+It also possible that  you need the same data twice, because you have to feed
+it to two different program's.
+Design your program such that you need them as little as possible,
+because they are confusing.
+    
+
+    
+
+@menu
+
+
+* -DUP  ::
+* 2DUP  ::
+* DROP  ::
+* DUP  ::
+* OVER  ::
+* ROT  ::
+* SWAP  ::
+@end menu
+@node -DUP, 2DUP, JUGGLING, JUGGLING
+@subsection -DUP
+@pindex -DUP
+
+Name: -DUP
+
+Stackeffect: n1 --- n1 (if zero) / n1 --- n1 n1 (non-zero)
+
+Attributes: L0
+
+Description: 
+Reproduce @var{n1} only if it is non-zero.
+This is usually used to copy a value just before @code{IF}
+@findex IF
+ , to eliminate
+the need for an @code{ELSE}
+@findex ELSE
+ part to drop it.
+
+See also: @samp{DUP} 
+
+        
+
+
+@node 2DUP, DROP, -DUP, JUGGLING
+@subsection 2DUP
+@pindex 2DUP
+
+Name: 2DUP
+
+Stackeffect: d --- d d
+
+Attributes: L0
+
+Description: 
+Duplicate the double number on the stack.
+
+See also: @samp{OVER} 
+
+        
+
+
+@node DROP, DUP, 2DUP, JUGGLING
+@subsection DROP
+@pindex DROP
+
+Name: DROP
+
+Stackeffect: n ---
+
+Attributes: L0
+
+Description: 
+Drop the number from the stack.
+
+See also: @samp{DUP} 
+
+        
+
+
+@node DUP, OVER, DROP, JUGGLING
+@subsection DUP
+@pindex DUP
+
+Name: DUP
+
+Stackeffect: n --- n n
+
+Attributes: L0
+
+Description: 
+Duplicate the value on the stack.
+
+See also: @samp{OVER} 
+
+        
+
+
+@node OVER, ROT, DUP, JUGGLING
+@subsection OVER
+@pindex OVER
+
+Name: OVER
+
+Stackeffect: nl n2 --- nl n2 n1
+
+Attributes: L0
+
+Description: 
+Copy the second stack value, placing it as the new top.
+
+See also: @samp{DUP} 
+
+        
+
+
+@node ROT, SWAP, OVER, JUGGLING
+@subsection ROT
+@pindex ROT
+
+Name: ROT
+
+Stackeffect: nl n2 n3 --- n2 n3 nl
+
+Attributes: L0
+
+Description: 
+Rotate the top three values on the stack, bringing the third to the
+top.
+
+See also: @samp{SWAP} 
+
+        
+
+
+@node SWAP, , ROT, JUGGLING
+@subsection SWAP
+@pindex SWAP
+
+Name: SWAP
+
+Stackeffect: nl n2 --- n2 n1
+
+Attributes: L0
+
+Description: 
+Exchange the top two values on the stack.
+
+See also: @samp{ROT} 
+
+        
+
+
+
+
+@node LOGIC, MEMORY,JUGGLING, Glossary
+@section LOGIC
+     
+    The wordset @var{LOGIC} contains logic operators and
+comparison operators.
+A comparison operators (such as @code{=}
+@findex =
+ ) delivers a
+logical @dfn{flag}
+@cindex flag
+, 1 for true, 0 for false, representing a
+condition (such as that two numbers are equal).
+The logical operators ( @code{AND}
+@findex AND
+ etc.)
+work on all 32, one by one.
+In this way they are useful for mask operations, as well
+as for combining conditions
+represented as flags. But beware that @code{IF}
+@findex IF
+ only cares whether
+the top of the stack is non-zero, such that to
+@code{IF}
+@findex IF
+ @code{-}
+@findex -
+ can mean non-equal.
+Such conditions cannot be directly
+combined using logical operators, but @samp{0= 0=} can help.
+    
+
+    
+
+@menu
+
+
+* 0<  ::
+* 0=  ::
+* <  ::
+* =  ::
+* >  ::
+* AND  ::
+* OR  ::
+* U<  ::
+* XOR  ::
+@end menu
+@node 0<, 0=, LOGIC, LOGIC
+@subsection 0<
+@pindex 0<
+
+Name: 0<
+
+Stackeffect: n --- f
+
+Attributes: L0
+
+Description: 
+Leave a true flag if the number is less than zero (negative),
+otherwise leave a false flag.
+
+See also: @samp{<} 
+
+        
+
+
+@node 0=, <, 0<, LOGIC
+@subsection 0=
+@pindex 0=
+
+Name: 0=
+
+Stackeffect: n --- f
+
+Attributes: L0
+
+Description: 
+Leave a true flag @var{f} is the number @var{n} is equal to zero, otherwise leave a
+false flag.
+
+See also: @samp{=} 
+
+        
+
+
+@node <, =, 0=, LOGIC
+@subsection <
+@pindex <
+
+Name: <
+
+Stackeffect: n1 n2 --- f
+
+Attributes: L0
+
+Description: 
+Leave a true flag if @var{n1} is less than @var{n2} ;otherwise leave a false
+flag.
+
+See also: @samp{=} 
+@samp{>} 
+@samp{0<} 
+
+
+
+        
+
+
+@node =, >, <, LOGIC
+@subsection =
+@pindex =
+
+Name: =
+
+Stackeffect: n1 n2 --- f
+
+Attributes: L0
+
+Description: 
+Leave a true flag if @var{n1=n2} ; otherwise leave a false flag.
+
+See also: @samp{<} 
+@samp{>} 
+@samp{0=} 
+@samp{-} 
+
+
+
+
+        
+
+
+@node >, AND, =, LOGIC
+@subsection >
+@pindex >
+
+Name: >
+
+Stackeffect: n1 n2 --- f
+
+Attributes: L0
+
+Description: 
+Leave a true flag if @var{n1} is greater than @var{n2} ; otherwise a false flag.
+
+See also: @samp{>} 
+@samp{=} 
+@samp{0<} 
+
+
+
+        
+
+
+@node AND, OR, >, LOGIC
+@subsection AND
+@pindex AND
+
+Name: AND
+
+Stackeffect: n1 n2 --- n2
+
+Attributes: L0
+
+Description: 
+Leave the bitwise logical and of @var{n1} and @var{n2} as @var{n3} .
+
+See also: @samp{XOR} 
+@samp{OR} 
+
+
+        
+
+
+@node OR, U<, AND, LOGIC
+@subsection OR
+@pindex OR
+
+Name: OR
+
+Stackeffect: n1 n2 --- or
+
+Attributes: L0
+
+Description: 
+Leave the bit-wise logical or of two 32 bit values.
+
+See also: @samp{AND} 
+@samp{XOR} 
+
+
+        
+
+
+@node U<, XOR, OR, LOGIC
+@subsection U<
+@pindex U<
+
+Name: U<
+
+Stackeffect: u1 u2 --- f
+
+Attributes: L0
+
+Description: 
+Leave a true flag if @var{u1} is less than @var{u2} ; otherwise leave a false
+flag.(Interpreted as unsigned numbers).
+
+See also: @samp{<} 
+
+        
+
+
+@node XOR, , U<, LOGIC
+@subsection XOR
+@pindex XOR
+
+Name: XOR
+
+Stackeffect: nl n2 --- xor
+
+Attributes: L1
+
+Description: 
+Leave the bitwise logical exclusive or of two values.
+
+See also: @samp{AND} 
+@samp{OR} 
+
+
+        
+
+
+
+
+@node MEMORY, MISC,LOGIC, Glossary
+@section MEMORY
+     
+    The wordset @var{MEMORY} contains words to fetch and
+store numbers from @dfn{double}
+@cindex double
+s, @dfn{cell}
+@cindex cell
+s or bytes in memory.
+There are also words to copy blocks of memory or fill them, and words that
+fetch a @dfn{cell}
+@cindex cell
+, operate on it and store it back.
+    
+
+    
+
+@menu
+
+
+* !  ::
+* +!  ::
+* 2!  ::
+* 2@@  :two_fetch
+* @@  :fetch
+* BLANKS  ::
+* C!  ::
+* C@@  :c_fetch
+* CELL+  ::
+* CMOVE  ::
+* EM  ::
+* ERASE  ::
+* FILL  ::
+* L!  ::
+* L@@  :long_fetch
+* P!  ::
+* P@@  :port_fetch
+* PC!  ::
+* PC@@  :port_char_fetch
+* TOGGLE  ::
+@end menu
+@node !, +!, MEMORY, MEMORY
+@subsection !
+@pindex !
+
+Name: !
+
+Stackeffect: n addr ---
+
+Attributes: ISO L0
+
+Description: 
+Store 16 bits of n at address.
+
+See also: @samp{@@} 
+@samp{C!} 
+@samp{2!} 
+@samp{L!} 
+@samp{P!} 
+@samp{PC!} 
+
+
+
+
+
+
+        
+
+
+@node +!, 2!, !, MEMORY
+@subsection +!
+@pindex +!
+
+Name: +!
+
+Stackeffect: n addr ---
+
+Attributes: L0
+
+Description:  Add
+@var{n} to the value at the address.
+
+See also: @samp{TOGGLE} 
+@samp{! } 
+
+
+        
+
+
+@node 2!, two_fetch, +!, MEMORY
+@subsection 2!
+@pindex 2!
+
+Name: 2!
+
+Stackeffect: addr--- x1 x2
+
+Attributes: ISO
+
+Description: 
+Store a pair of _32_ bits values @var{x1} @var{x2} to
+consecutive cells at @var{addr} . @var{x2} is stored at
+the lowest address. 
+
+See also: @samp{2@@} 
+@samp{!} 
+@samp{C!} 
+
+
+
+        
+
+
+@node two_fetch, fetch, 2!, MEMORY
+@subsection two_fetch
+@pindex 2@@
+
+Name: 2@@
+
+Stackeffect: addr--- x1 x2
+
+Attributes: ISO
+
+Description: 
+Leave a pair of _32_ bits values @var{x1} @var{x2} from
+consequitive cells at @var{addr} . @var{x2} is fetched from
+the lowest address. 
+
+See also: @samp{2!} 
+@samp{@@} 
+@samp{C@@} 
+
+
+
+        
+
+
+@node fetch, BLANKS, two_fetch, MEMORY
+@subsection fetch
+@pindex @@
+
+Name: @@
+
+Stackeffect: addr --- n
+
+Attributes: ISO L0
+
+Description: 
+Leave the 32 bit contents @var{n}
+of @var{addr} .
+
+See also: @samp{!} 
+@samp{C@@} 
+@samp{2@@} 
+@samp{P@@} 
+@samp{PC@@} 
+@samp{L@@} 
+
+
+
+
+
+
+        
+
+
+@node BLANKS, C!, fetch, MEMORY
+@subsection BLANKS
+@pindex BLANKS
+
+Name: BLANKS
+
+Stackeffect: addr count --
+
+Attributes: 
+
+Description: 
+Shorthand for ``@code{BL}
+@findex BL
+ @code{FILL}
+@findex FILL
+''.
+
+        
+
+
+@node C!, c_fetch, BLANKS, MEMORY
+@subsection C!
+@pindex C!
+
+Name: C!
+
+Stackeffect: b addr ---
+
+Attributes: ISO
+
+Description: 
+Store 8 bits at @var{addr} . On word addressing computers, further
+specification is necessary regarding byte addressing.
+
+See also: @samp{C@@} 
+@samp{!} 
+
+
+        
+
+
+@node c_fetch, CELL+, C!, MEMORY
+@subsection c_fetch
+@pindex C@@
+
+Name: C@@
+
+Stackeffect: addr --- b
+
+Attributes: ISO
+
+Description: 
+Leave the 8 bit contents of memory address. On the Intel architectures
+there are no restrictions regarding byte
+addressing.
+
+See also: @samp{C!} 
+@samp{@@} 
+@samp{2@@} 
+
+
+
+        
+
+
+@node CELL+, CMOVE, c_fetch, MEMORY
+@subsection CELL+
+@pindex CELL+
+
+Name: CELL+
+
+Stackeffect: n1 --- n2
+
+Attributes: 
+
+Description: 
+Advance the memory pointer @var{n1} by one 32 cel to
+@var{n2}. This is invaluable for writing portable
+code. Many of the screens of fig-Forth run on both 16 and 32 bits
+systems
+
+
+        
+
+
+@node CMOVE, EM, CELL+, MEMORY
+@subsection CMOVE
+@pindex CMOVE
+
+Name: CMOVE
+
+Stackeffect: from to count --
+
+Attributes: 
+
+Description: 
+Move the specified quantity of bytes beginning at address from @var{to}
+address @var{to} . The contents of address from is moved first proceeding
+toward high memory. As the Pentintel 86-family is byte-addressing there are
+no restrictions. 
+
+        
+
+
+@node EM, ERASE, CMOVE, MEMORY
+@subsection EM
+@pindex EM
+
+Name: EM
+
+Stackeffect: ---- addr
+
+Attributes: 
+
+Description: 
+A constant leaving the address just above the highest memory
+in use.
+
+
+See also: @samp{DP} 
+
+        
+
+
+@node ERASE, FILL, EM, MEMORY
+@subsection ERASE
+@pindex ERASE
+
+Name: ERASE
+
+Stackeffect: addr n --
+
+Attributes: 
+
+Description: 
+Shorthand for ``@var{0} @code{FILL}
+@findex FILL
+''.
+
+        
+
+
+@node FILL, L!, ERASE, MEMORY
+@subsection FILL
+@pindex FILL
+
+Name: FILL
+
+Stackeffect: addr quan b --
+
+Attributes: 
+
+Description: 
+Fill memory at the address with the specified quantity of bytes @var{b} .
+
+        
+
+
+@node L!, long_fetch, FILL, MEMORY
+@subsection L!
+@pindex L!
+
+Name: L!
+
+Stackeffect: n nseg addr --- 
+
+Attributes: 
+
+Description: 
+Store 32 bits of @var{n} at address
+@var{rseg:addr},
+interpreted as if it was a real mode segment plus offset addres.
+This only works if the data segment is mapped directly (not paged) from
+physical address 0H . 
+
+See also: @samp{L@@} 
+@samp{!} 
+@samp{C!} 
+@samp{2!} 
+
+
+
+
+        
+
+
+@node long_fetch, P!, L!, MEMORY
+@subsection long_fetch
+@pindex L@@
+
+Name: L@@
+
+Stackeffect: rseg addr --- n
+
+Attributes: 
+
+Description: 
+Leave the 32 bit contents of @var{rseg:addr},
+interpreted as if it was a real mode segment plus offset addres.
+This only works if the data segment is mapped directly (not paged) from
+physical address 0H . 
+
+See also: @samp{L!} 
+@samp{@@} 
+@samp{C@@} 
+@samp{2@@} 
+
+
+
+
+        
+
+
+@node P!, port_fetch, long_fetch, MEMORY
+@subsection P!
+@pindex P!
+
+Name: P!
+
+Stackeffect: n port --- 
+
+Attributes: 
+
+Description: 
+Store the 32 bit data @var{n} to the port address
+@var{port} .
+
+See also: @samp{P@@} 
+@samp{PC!} 
+@samp{PC@@} 
+@samp{!} 
+
+
+
+
+        
+
+
+@node port_fetch, PC!, P!, MEMORY
+@subsection port_fetch
+@pindex P@@
+
+Name: P@@
+
+Stackeffect: port --- n
+
+Attributes: 
+
+Description: 
+Fetch the 32 bit contents @var{n} from the port address
+@var{port}. A port address is always 16 bits .
+
+See also: @samp{P!} 
+@samp{PC@@} 
+@samp{PC!} 
+@samp{@@} 
+
+
+
+
+        
+
+
+@node PC!, port_char_fetch, port_fetch, MEMORY
+@subsection PC!
+@pindex PC!
+
+Name: PC!
+
+Stackeffect: b port --- 
+
+Attributes: 
+
+Description: 
+Store a byte @var{b} to the port address
+@var{port}.
+A port address is always 16 bits .
+
+See also: @samp{PC@@} 
+@samp{P!} 
+@samp{P@@} 
+@samp{!} 
+
+
+
+
+        
+
+
+@node port_char_fetch, TOGGLE, PC!, MEMORY
+@subsection port_char_fetch
+@pindex PC@@
+
+Name: PC@@
+
+Stackeffect: port --- b
+
+Attributes: 
+
+Description: 
+Fetch a byte @var{b} from the port address
+@var{port}. A port address is always 16 bits .
+
+See also: @samp{PC!} 
+@samp{P@@} 
+@samp{P!} 
+@samp{@@} 
+
+
+
+
+        
+
+
+@node TOGGLE, , port_char_fetch, MEMORY
+@subsection TOGGLE
+@pindex TOGGLE
+
+Name: TOGGLE
+
+Stackeffect: addr b --
+
+Attributes: 
+
+Description: 
+Complement the contents of @var{addr} by the bit pattern @var{b} .
+
+See also: @samp{XOR} 
+@samp{+! } 
+
+
+        
+
+
+
+
+@node MISC, MULTIPLYING,MEMORY, Glossary
+@section MISC
+     
+    The wordset @var{MISC} contains words that defy categorisation.
+    
+
+    
+
+@menu
+
+
+* .CPU  ::
+* EXECUTE  ::
+* NOOP  ::
+* TASK  ::
+* U0  ::
+* X  ::
+@end menu
+@node .CPU, EXECUTE, MISC, MISC
+@subsection .CPU
+@pindex .CPU
+
+Name: .CPU
+
+Stackeffect: ---
+
+Attributes: 
+
+Description: Print the name of the CPU processor present in the boot up
+parameters. Using the bizar convention of a base-36 number.
+
+See also: @samp{ABORT} 
+@samp{COLD} 
+
+
+        
+
+
+@node EXECUTE, NOOP, .CPU, MISC
+@subsection EXECUTE
+@pindex EXECUTE
+
+Name: EXECUTE
+
+Stackeffect: addr -
+
+Attributes: 
+
+Description: 
+Execute the definition whose code field address is given by @var{addr} .
+
+
+See also: @samp{'} 
+@samp{CFA} 
+
+
+        
+
+
+@node NOOP, TASK, EXECUTE, MISC
+@subsection NOOP
+@pindex NOOP
+
+Name: NOOP
+
+No stackeffect
+
+Attributes: 
+
+Description: 
+Do nothing. Primarily useful as a placeholder.
+
+
+        
+
+
+@node TASK, U0, NOOP, MISC
+@subsection TASK
+@pindex TASK
+
+Name: TASK
+
+No stackeffect
+
+Attributes: 
+
+Description: 
+A no-operation word which marks the boundary between
+the forth system and applications. 
+
+See also: @samp{COLD} 
+
+        
+
+
+@node U0, X, TASK, MISC
+@subsection U0
+@pindex U0
+
+Name: U0
+
+Stackeffect: --- addr
+
+Attributes: 
+
+Description: 
+A user variable, leaving the start address of the user area. This is
+for reference only. What is taken into account by user variables is
+the corresponding initialisation variable.
+
+
+See also: @samp{USER} 
+@samp{+ORIGIN} 
+
+
+        
+
+
+@node X, , U0, MISC
+@subsection X
+@pindex X
+
+Name: X
+
+No stackeffect
+
+Attributes: 
+
+Description: 
+This is pseudonym for the "null" or dictionary entry for a name of
+one character of ascii null.
+All buffers being interpreted ends with this word, that is
+actually executed.
+It terminates interpretation of a line of text from the terminal or
+of a disc buffer,
+
+
+        
+
+
+
+
+@node MULTIPLYING, OPERATOR,MISC, Glossary
+@section MULTIPLYING
+     
+    The original 16 bits Forth's have problems with scaling (@pxref{OPERATOR}).
+Operators with intermediate results of double precision solve this and are
+present in the @var{MULTIPLYING} wordset. In this 32-bit Forth
+you will have less need.
+Formatting is done with @dfn{double}
+@cindex double
+'s exclusively, and relies
+on this wordset. Operators with mixed precision and unsigned operators
+allow to build arbitray precision from them in @dfn{high level}
+@cindex high level
+ code.
+    
+
+    
+
+@menu
+
+
+* */MOD  ::
+* */  ::
+* M*  ::
+* M/MOD  ::
+* M/  ::
+* U*  ::
+* U/  ::
+@end menu
+@node */MOD, */, MULTIPLYING, MULTIPLYING
+@subsection */MOD
+@pindex */MOD
+
+Name: */MOD
+
+Stackeffect: n1 n2 n3 --- n4 n5
+
+Attributes: L0
+
+Description: 
+Leave the quotient @var{n5} and remainder @var{n4} of the operation @var{n1*n2/n3} A
+31 bit intermediate product is used as for @code{*/}
+@findex */
+ .
+
+See also: @samp{*/} 
+@samp{/MOD} 
+
+
+        
+
+
+@node */, M*, */MOD, MULTIPLYING
+@subsection */
+@pindex */
+
+Name: */
+
+Stackeffect: n1 n2 n3 --- n4
+
+Attributes: L0
+
+Description: 
+Leave the ratio @var{n4 = n1*n2/n3} where all are signed numbers.
+Retention of an intermediate 31 bit product permits greater accuracy
+than would. be available with the sequence:
+      @samp{n1 n2 * n3 /}
+
+
+See also: @samp{*/MOD} 
+@samp{/MOD} 
+
+
+        
+
+
+@node M*, M/MOD, */, MULTIPLYING
+@subsection M*
+@pindex M*
+
+Name: M*
+
+Stackeffect: n1 n2 --- d
+
+Attributes: 
+
+Description: 
+A mixed magnitude math operation which leaves the double number
+ @var{d} : the signed product of two signed number @var{n1} and @var{n2} .
+
+See also: @samp{M/MOD} 
+@samp{M/} 
+@samp{*} 
+
+
+
+        
+
+
+@node M/MOD, M/, M*, MULTIPLYING
+@subsection M/MOD
+@pindex M/MOD
+
+Name: M/MOD
+
+Stackeffect: ud1 u2 --- u3 ud4
+
+Attributes: 
+
+Description: 
+An unsigned mixed magnitude math operation which leaves a double
+quotient @var{ud4} and remainder @var{u3} , from a double dividend @var{ud1} and single
+divisor @var{u2} .
+
+See also: @samp{/MOD} 
+@samp{M/} 
+@samp{M*} 
+
+
+
+        
+
+
+@node M/, U*, M/MOD, MULTIPLYING
+@subsection M/
+@pindex M/
+
+Name: M/
+
+Stackeffect: d n1 --- n2 n3
+
+Attributes: 
+
+Description: 
+A mixed magnitude math operator which leaves the signed remainder @var{n2}
+and signed quotient @var{n3} from a double number dividend @var{d} and divisor @var{n1} .
+The remainder takes its sign from the dividend.
+
+See also: @samp{M/MOD} 
+@samp{/} 
+@samp{M*} 
+
+
+
+        
+
+
+@node U*, U/, M/, MULTIPLYING
+@subsection U*
+@pindex U*
+
+Name: U*
+
+Stackeffect: u1 u2 --- ud
+
+Attributes: 
+
+Description: 
+A mixed magnitude math operation which leaves the double number
+ @var{d} : the unsigned product of two unsigned numbers
+ @var{n1} and @var{n2} .
+
+See also: @samp{U/} 
+@samp{M*.*} 
+
+
+        
+
+
+@node U/, , U*, MULTIPLYING
+@subsection U/
+@pindex U/
+
+Name: U/
+
+Stackeffect: ud u1 --- u2 u3
+
+Attributes: 
+
+Description: 
+Leave the unsigned remainder @var{u2} and unsigned quotient @var{u3} from the
+unsigned double dividend @var{ud} and unsigned divisor @var{u1} .
+
+See also: @samp{U*} 
+@samp{M/} 
+@samp{/} 
+
+
+
+        
+
+
+
+
+@node OPERATOR, OUTPUT,MULTIPLYING, Glossary
+@section OPERATOR
+     
+    The wordset @var{OPERATOR} contains the familiar operators for addition, multiplication etc.
+The result of the operation is always
+an integer number, so division can't be precise. The combination of
+@code{/}
+@findex /
+ and @code{MOD}
+@findex MOD
+ (remainder) is such that you can get the
+original back: @samp{n m /   m *  n m MOD   +} allways has the value
+@var{m} . This is true for all Forth's.
+On fig-Forth the @code{/}
+@findex /
+ is a @dfn{symmetric division}
+@cindex symmetric division
+, i.e.
+@samp{-n m /} give the same result as @samp{n m /}, but negated.
+The forgeoing rule now has the consequence that @samp{MOD n m}
+has @var{2m-1} possible outcomes instead of @var{m} .
+This is very worrysome for mathematicians, who stick to the rule that
+@samp{MOD n m} gives a result in the range @var{0 ... m-1}
+(@dfn{floored division}
+@cindex floored division
+).
+
+    
+
+    
+
+@menu
+
+
+* *  :star
+* +  ::
+* -  ::
+* /MOD  ::
+* /  ::
+* ABS  ::
+* MAX  ::
+* MINUS  ::
+* MIN  ::
+* MOD  ::
+@end menu
+@node star, +, OPERATOR, OPERATOR
+@subsection star
+@pindex *
+
+Name: *
+
+Stackeffect: n1 n2 --- prod
+
+Attributes: L0
+
+Description: 
+Leave the signed product of two signed numbers.
+
+See also: @samp{+} 
+@samp{-} 
+@samp{/} 
+@samp{MOD} 
+
+
+
+
+        
+
+
+@node +, -, star, OPERATOR
+@subsection +
+@pindex +
+
+Name: +
+
+Stackeffect: n1 n2 --- sum
+
+Attributes: L0
+
+Description: 
+Leave the sum of @var{n1+n2} .
+
+See also: @samp{-} 
+@samp{*} 
+@samp{/} 
+@samp{MOD} 
+
+
+
+
+        
+
+
+@node -, /MOD, +, OPERATOR
+@subsection -
+@pindex -
+
+Name: -
+
+Stackeffect: n1 n2 --- diff
+
+Attributes: L0
+
+Description: 
+Leave the difference of @var{n1-n2} .
+
+See also: @samp{MINUS} 
+@samp{+} 
+@samp{*} 
+@samp{/} 
+@samp{MOD} 
+
+
+
+
+
+        
+
+
+@node /MOD, /, -, OPERATOR
+@subsection /MOD
+@pindex /MOD
+
+Name: /MOD
+
+Stackeffect: n1 n2 --- rem quot
+
+Attributes: L0
+
+Description: 
+Leave the remainder and signed quotient of @var{n1/n2} . The remainder has
+the sign of the dividend.
+
+See also: @samp{*/MOD} 
+@samp{*/} 
+@samp{M/MOD} 
+
+
+
+        
+
+
+@node /, ABS, /MOD, OPERATOR
+@subsection /
+@pindex /
+
+Name: /
+
+Stackeffect: n1 n2 --- quot
+
+Attributes: L0
+
+Description: 
+Leave the signed quotient of @var{n1/n2} .
+It the result is interpreted as logical value, it means @var{n1} si not equal
+to @var{n2} 
+
+See also: @samp{+} 
+@samp{-} 
+@samp{*} 
+@samp{MOD} 
+@samp{*/MOD} 
+
+
+
+
+
+        
+
+
+@node ABS, MAX, /, OPERATOR
+@subsection ABS
+@pindex ABS
+
+Name: ABS
+
+Stackeffect: n --- u
+
+Attributes: L0
+
+Description: 
+Leave the absolute value of @var{n} as @var{u} .
+
+        
+
+
+@node MAX, MINUS, ABS, OPERATOR
+@subsection MAX
+@pindex MAX
+
+Name: MAX
+
+Stackeffect: n1 n2 --- max
+
+Attributes: L0
+
+Description: 
+Leave the greater of two numbers.
+
+See also: @samp{MIN} 
+
+        
+
+
+@node MINUS, MIN, MAX, OPERATOR
+@subsection MINUS
+@pindex MINUS
+
+Name: MINUS
+
+Stackeffect: n1 --- n2
+
+Attributes: L0
+
+Description: 
+Leave the two's complement of a number, i.e.
+ @var{n2} is @var{-n1}
+
+
+See also: @samp{-} 
+
+        
+
+
+@node MIN, MOD, MINUS, OPERATOR
+@subsection MIN
+@pindex MIN
+
+Name: MIN
+
+Stackeffect: n1 n2 --- min
+
+Attributes: L0
+
+Description: 
+Leave the smaller of two numbers.
+
+See also: @samp{MAX} 
+
+        
+
+
+@node MOD, , MIN, OPERATOR
+@subsection MOD
+@pindex MOD
+
+Name: MOD
+
+Stackeffect: n1 n2 --- mod
+
+Attributes: L0
+
+Description: 
+Leave the remainder of @var{n1/n2} , with the same sign as @var{n1} .
+
+See also: @samp{+} 
+@samp{-} 
+@samp{*} 
+@samp{/} 
+@samp{MOD} 
+@samp{*/MOD} 
+
+
+
+
+
+
+        
+
+
+
+
+@node OUTPUT, PARSING,OPERATOR, Glossary
+@section OUTPUT
+     
+    The wordset @var{OUTPUT} contains words to output
+to the terminal and such. For disk I/O: @xref{STORAGE} 
+    
+
+    
+
+@menu
+
+
+* ."  :dot_quote
+* .R  :dot_r
+* .  :dot
+* ?  ::
+* CR  ::
+* D.R  ::
+* D.  ::
+* EMIT  ::
+* OUT  ::
+* SPACES  ::
+* SPACE  ::
+* TYPE  ::
+* U.  :u_dot
+@end menu
+@node dot_quote, dot_r, OUTPUT, OUTPUT
+@subsection dot_quote
+@pindex ."
+
+Name: ."
+
+No stackeffect
+
+Attributes: P,L0
+
+Description: 
+Used in the form:
+  @samp{." cccc"}
+Compiles an in-line string @samp{cccc} (delimited by the trailing ") with
+an execution proceedure to transmit the text to the selected output
+device.
+If executed outside a definition, @code{."}
+@findex ."
+ will immediately print the text
+until the final ". The maximum number of characters may be an
+installation dependent value.
+
+See also: @samp{OUT} 
+@samp{(.")} 
+
+
+        
+
+
+@node dot_r, dot, dot_quote, OUTPUT
+@subsection dot_r
+@pindex .R
+
+Name: .R
+
+Stackeffect: n1 n2 ---
+
+Attributes: 
+
+Description: 
+Print the number n1 right aligned in a field whose width is @var{n2} . No
+following blank is printed.
+
+See also: @samp{OUT} 
+@samp{.} 
+
+
+        
+
+
+@node dot, ?, dot_r, OUTPUT
+@subsection dot
+@pindex .
+
+Name: .
+
+Stackeffect: n ---
+
+Attributes: L0
+
+Description: 
+Print a number from a signed 32 bit two's complement value,
+converted according to the numeric @code{BASE}
+@findex BASE
+ .
+A trailing blanks follows.
+
+See also: @samp{OUT} 
+@samp{U.} 
+@samp{.R} 
+@samp{D.R} 
+@samp{D.} 
+
+
+
+
+
+        
+
+
+@node ?, CR, dot, OUTPUT
+@subsection ?
+@pindex ?
+
+Name: ?
+
+Stackeffect: addr --
+
+Attributes: L0
+
+Description: 
+Print the value contained at the address in free  according to
+the current base.
+
+See also: @samp{OUT} 
+
+        
+
+
+@node CR, D.R, ?, OUTPUT
+@subsection CR
+@pindex CR
+
+Name: CR
+
+No stackeffect
+
+Attributes: L0
+
+Description: 
+Transmit a carriage return and line feed to the selected output
+device.
+
+See also: @samp{OUT} 
+
+        
+
+
+@node D.R, D., CR, OUTPUT
+@subsection D.R
+@pindex D.R
+
+Name: D.R
+
+Stackeffect: d n ---
+
+Attributes: 
+
+Description: 
+Print a signed double number @var{d} right aligned in a field @var{n} characters
+wide.
+
+See also: @samp{OUT} 
+@samp{D.} 
+
+
+        
+
+
+@node D., EMIT, D.R, OUTPUT
+@subsection D.
+@pindex D.
+
+Name: D.
+
+Stackeffect: d ---
+
+Attributes: L1
+
+Description: 
+Print a signed double number @var{d},
+according to the current @code{BASE}
+@findex BASE
+ . A blank follows.
+
+
+See also: @samp{OUT} 
+@samp{.} 
+@samp{D.R} 
+
+
+
+        
+
+
+@node EMIT, OUT, D., OUTPUT
+@subsection EMIT
+@pindex EMIT
+
+Name: EMIT
+
+Stackeffect: c ---
+
+Attributes: ISO FIG L0
+
+Description: 
+Transmit ascii character @var{c} to the output device.
+All terminal I/O goes through @code{TYPE}
+@findex TYPE
+.
+@code{OUT}
+@findex OUT
+ is not observed.
+
+See also: @samp{TYPE} 
+@samp{OUT} 
+
+
+        
+
+
+@node OUT, SPACES, EMIT, OUTPUT
+@subsection OUT
+@pindex OUT
+
+Name: OUT
+
+Stackeffect: --- addr
+
+Attributes: U
+
+Description: 
+A user variable that reflects the position at the current line of the output
+device where the next character transmitted will appear.
+The first position is zero. 
+
+See also: @samp{EMIT} 
+@samp{TYPE} 
+@samp{CR} 
+
+
+
+        
+
+
+@node SPACES, SPACE, OUT, OUTPUT
+@subsection SPACES
+@pindex SPACES
+
+Name: SPACES
+
+Stackeffect: n ---
+
+Attributes: L0
+
+Description: 
+Transmit @var{n} ascii blanks to the output device.
+
+See also: @samp{SPACE} 
+@samp{OUT} 
+
+
+        
+
+
+@node SPACE, TYPE, SPACES, OUTPUT
+@subsection SPACE
+@pindex SPACE
+
+Name: SPACE
+
+No stackeffect
+
+Attributes: L0
+
+Description: 
+Transmit an ascii blank to the output device.
+
+See also: @samp{EMIT} 
+@samp{OUT} 
+
+
+        
+
+
+@node TYPE, u_dot, SPACE, OUTPUT
+@subsection TYPE
+@pindex TYPE
+
+Name: TYPE
+
+Stackeffect: addr count ---
+
+Attributes: ISO FIG L0
+
+Description: 
+Transmit count characters from @var{addr} to the output device.
+All terminal I/O goes through this word. It is high level so terminal
+I/O can be redirected, by forthref(revectoring) it
+and the usual redirection or @var{tee}-ing by Linux.
+@code{OUT}
+@findex OUT
+ is not observed.
+
+See also: @samp{EMIT} 
+@samp{OUT} 
+
+
+        
+
+
+@node u_dot, , TYPE, OUTPUT
+@subsection u_dot
+@pindex U.
+
+Name: U.
+
+Stackeffect: u ---
+
+Attributes: L0
+
+Description: 
+Print a number from a unsigned 32 bit value,
+converted according to the numeric @code{BASE}
+@findex BASE
+ .
+A trailing blanks
+
+follows.
+
+See also: @samp{OUT} 
+@samp{.} 
+@samp{.R} 
+@samp{D.R} 
+@samp{D.} 
+
+
+
+
+
+        
+
+
+
+
+@node PARSING, SCREEN,OUTPUT, Glossary
+@section PARSING
+     
+    The @dfn{outer interpreter}
+@cindex outer interpreter
+ is responsible for parsing, i.e.
+it gets a word from the input stream and interprets or compiles it,
+advacing the @code{IN}
+@findex IN
+ pointer. The wordset @var{PARSING} contains
+the words used by this interpreter and other words that consume characters
+from the input stream. In this way the outer interpreter need not be very smart,
+because its capabilities can be extended by new words based on those
+building blocks.
+    
+
+    
+
+@menu
+
+
+* (.")  :paren_dot_quote
+* (  :paren
+* ENCLOSE  ::
+* INTERPRET  ::
+* QUERY  ::
+* STATE  ::
+* WORD  ::
+* [  ::
+* ]  ::
+@end menu
+@node paren_dot_quote, paren, PARSING, PARSING
+@subsection paren_dot_quote
+@pindex (.")
+
+Name: (.")
+
+No stackeffect
+
+Attributes: C+
+
+Description: 
+The run-time proceedure, compiled by @code{."}
+@findex ."
+ which transmits the
+following in-line text to the selected output device.
+
+See also: @samp{."} 
+
+        
+
+
+@node paren, ENCLOSE, paren_dot_quote, PARSING
+@subsection paren
+@pindex (
+
+Name: (
+
+No stackeffect
+
+Attributes: P,L0
+
+Description: 
+Used in the form:
+@samp{( cccc)}
+Ignore a comment that will be delimited by a right
+parenthesis on the same line. May occur during execution or in a
+colon-definition. A blank after the leading parenthesis is required.
+
+        
+
+
+@node ENCLOSE, INTERPRET, paren, PARSING
+@subsection ENCLOSE
+@pindex ENCLOSE
+
+Name: ENCLOSE
+
+Stackeffect: addr1 c --- addr1 n1 n2 n3
+
+Attributes: 
+
+Description: 
+The text scanning primitive used by @code{WORD}
+@findex WORD
+ . From the text address
+addr1 and an ascii delimiting character @var{c} , is determined the byte
+offset to the first non-delimiter character @var{n1} , the offset to the
+first delimiter after the text @var{n2} , and the offset to the first
+character not included.
+This proceedure will not process past an ascii "null", treating it
+as an unconditional delimiter.
+
+        
+
+
+@node INTERPRET, QUERY, ENCLOSE, PARSING
+@subsection INTERPRET
+@pindex INTERPRET
+
+Name: INTERPRET
+
+No stackeffect
+
+Attributes: 
+
+Description: 
+Repeatedly fetch
+the next text word in the input stream and
+execute it (@code{STATE}
+@findex STATE
+ is 1)
+or compile it (@code{STATE}
+@findex STATE
+ is 1).
+Text from the input stream: terminal ( @code{BLK}
+@findex BLK
+ is 0 )
+or disc (other value) . If
+the word name cannot be found after a search of @code{CONTEXT}
+@findex CONTEXT
+ and then
+@code{CURRENT}
+@findex CURRENT
+ it is converted to a number according to the current base.
+If a decimal point is found as part of a number, the number value that
+is left is a double number, otherwise a single number. The decimal
+point has no other purpose.
+That also failing, an error message echoing the name with a " ?"
+will be given.
+
+
+See also: @samp{WORD} 
+@samp{NUMBER} 
+
+
+        
+
+
+@node QUERY, STATE, INTERPRET, PARSING
+@subsection QUERY
+@pindex QUERY
+
+Name: QUERY
+
+No stackeffect
+
+Attributes: 
+
+Description: 
+Input 80 characters of text (or until a "return") from the operators
+terminal. Text is positioned at the address contained in @code{TIB}
+@findex TIB
+ with @code{IN}
+@findex IN
+
+set to zero.
+
+
+        
+
+
+@node STATE, WORD, QUERY, PARSING
+@subsection STATE
+@pindex STATE
+
+Name: STATE
+
+Stackeffect: --- addr
+
+Attributes: L0,U
+
+Description: 
+A user variable containing the compilation state. A non-zero value
+indicates compilation. The value itself may be implementation
+dependent.
+
+        
+
+
+@node WORD, [, STATE, PARSING
+@subsection WORD
+@pindex WORD
+
+Name: WORD
+
+Stackeffect: c ---
+
+Attributes: L0
+
+Description: 
+Read the next text characters from the input stream being
+interpreted, until a delimiter @var{c} is found, storing the packed
+character string beginning at the dictionary buffer @code{HERE}
+@findex HERE
+ . @code{WORD}
+@findex WORD
+
+leaves the character count in the first byte, the characters, and
+ends with two or more blanks. Leading occurrences of @var{c} are ignored.
+If @code{BLK}
+@findex BLK
+ is zero text is taken from the terminal input buffer,
+otherwise from the disc block stored in @code{BLK}
+@findex BLK
+ .
+
+See also: @samp{BLK } 
+@samp{IN} 
+
+
+        
+
+
+@node [, ], WORD, PARSING
+@subsection [
+@pindex [
+
+Name: [
+
+No stackeffect
+
+Attributes: P,L1
+
+Description: 
+Used in a colon-definition in form:
+@example
+@cartouche :  xxx    [  words   ]    more   ;
+@end cartouche
+@end example
+Suspend compilation. The words after @code{[}
+@findex [
+ are executed, not compiled.
+This allows calculation or compilation exceptions before resuming
+compilation with @code{]}
+@findex ]
+
+
+See also: @samp{LITERAL } 
+@samp{]} 
+
+
+        
+
+
+@node ], , [, PARSING
+@subsection ]
+@pindex ]
+
+Name: ]
+
+No stackeffect
+
+Attributes: L1
+
+Description: 
+Resume compilation, to the completion of a colon-definition.
+
+See also: @samp{[} 
+
+        
+
+
+
+
+@node SCREEN, SECURITY,PARSING, Glossary
+@section SCREEN
+     
+    Most of the mass storage is used for @dfn{screen}
+@cindex screen
+'s that
+have 16 lines of 64 characters. They are used for source code
+and documentation.
+Each screen is a whole number of @code{BLOCK}
+@findex BLOCK
+'s,
+in our case it is one block.
+The @var{SCREEN} wordset contains facilities to view screens,
+and @dfn{load}
+@cindex load
+ them, that is compiling them and thus extending
+the base system.
+A system is customized by loading source screens, possibly one of
+these extension is a text editor for screens.
+    
+
+    
+
+@menu
+
+
+* (LINE)  :paren_line
+* -->  :next_screen
+* .LINE  ::
+* ;S  ::
+* B/SCR  ::
+* C/L  ::
+* INDEX  ::
+* LIST  ::
+* LOAD  ::
+* R#  ::
+* SCR  ::
+* TRIAD  ::
+@end menu
+@node paren_line, next_screen, SCREEN, SCREEN
+@subsection paren_line
+@pindex (LINE)
+
+Name: (LINE)
+
+Stackeffect: n1 n2 --- addr count
+
+Attributes: 
+
+Description: 
+Convert the line number @code{n1}
+@findex n1
+ and the screen @var{n2} to the disc buffer
+address containing the data. A count of 64 indicates the full line
+text length.
+
+See also: @samp{-LINE} 
+
+        
+
+
+@node next_screen, .LINE, paren_line, SCREEN
+@subsection next_screen
+@pindex -->
+
+Name: -->
+
+No stackeffect
+
+Attributes: P,L0
+
+Description: 
+Continue interpretation with the next disc screen.
+
+See also: @samp{LOAD} 
+
+        
+
+
+@node .LINE, ;S, next_screen, SCREEN
+@subsection .LINE
+@pindex .LINE
+
+Name: .LINE
+
+Stackeffect: line scr --
+
+Attributes: 
+
+Description: 
+Print on the terminal device, a line of text from the disc by its
+line and screen number. Trailing blanks are suppressed
+
+See also: @samp{C/L} 
+
+        
+
+
+@node ;S, B/SCR, .LINE, SCREEN
+@subsection ;S
+@pindex ;S
+
+Name: ;S
+
+No stackeffect
+
+Attributes: P,L0
+
+Description: 
+Stop interpretation of a screen.
+@code{;S}
+@findex ;S
+ is also the run-time word compiled at the end of a
+colon-definition which returns execution to the calling proceedure.
+
+        
+
+
+@node B/SCR, C/L, ;S, SCREEN
+@subsection B/SCR
+@pindex B/SCR
+
+Name: B/SCR
+
+Stackeffect: --- n
+
+Attributes: 
+
+Description: 
+This constant leaves the number of blocks per editing screen.
+An editing screen is 1024 bytes organized as 16 lines of
+64 characters each.
+In fact @code{B/SCR}
+@findex B/SCR
+ is 1, and screens correspond one to one with
+blocks. 
+
+See also: @samp{BLOCK} 
+
+        
+
+
+@node C/L, INDEX, B/SCR, SCREEN
+@subsection C/L
+@pindex C/L
+
+Name: C/L
+
+Stackeffect: --- c
+
+Attributes: 
+
+Description: A constant that leaves the number of characters on a line of a
+standard screen. 
+
+See also: @samp{LIST} 
+@samp{LINE} 
+
+
+        
+
+
+@node INDEX, LIST, C/L, SCREEN
+@subsection INDEX
+@pindex INDEX
+
+Name: INDEX
+
+Stackeffect: from to --
+
+Attributes: 
+
+Description: 
+Print the first line of each screen over the range @var{from} , @var{to} . This is
+used to view the comment lines of an area of text on disc screens.
+
+See also: @samp{LIST} 
+
+        
+
+
+@node LIST, LOAD, INDEX, SCREEN
+@subsection LIST
+@pindex LIST
+
+Name: LIST
+
+Stackeffect: n ---
+
+Attributes: L0
+
+Description: 
+Display the ascii text of screen @var{n} on the selected output device.
+@code{SCR}
+@findex SCR
+ contains the screen number during and after this process.
+
+        
+
+
+@node LOAD, R#, LIST, SCREEN
+@subsection LOAD
+@pindex LOAD
+
+Name: LOAD
+
+Stackeffect: n ---
+
+Attributes: L0
+
+Description: 
+Interrupt the current input stream in order to
+interpret screen @var{n} .
+At the end of the screen, barring errors or forced changes,
+it continues with the interrupted input stream.
+
+See also: @samp{-->} 
+@samp{QUIT} 
+@samp{;S} 
+
+
+
+        
+
+
+@node R#, SCR, LOAD, SCREEN
+@subsection R#
+@pindex R#
+
+Name: R#
+
+Stackeffect: --- addr
+
+Attributes: U
+
+Description: 
+A user variable which may contain the location of an editing cursor,
+or other file related function.
+
+        
+
+
+@node SCR, TRIAD, R#, SCREEN
+@subsection SCR
+@pindex SCR
+
+Name: SCR
+
+Stackeffect: --- addr
+
+Attributes: U
+
+Description: 
+A user variable containing the screen number most recently reference
+by @code{LIST}
+@findex LIST
+ .
+
+See also: @samp{BLOCK} 
+
+        
+
+
+@node TRIAD, , SCR, SCREEN
+@subsection TRIAD
+@pindex TRIAD
+
+Name: TRIAD
+
+Stackeffect: scr --
+
+Attributes: 
+
+Description: 
+Display on the selected output device the three screens which
+include that numbered @var{scr} , beginning with a screen evenly divisible
+by three. Output is suitable for source text records, and includes a
+reference line at the bottom taken from line 15 of screen 4.
+
+See also: @samp{MESSAGE} 
+
+        
+
+
+
+
+@node SECURITY, STACKS,SCREEN, Glossary
+@section SECURITY
+     
+    The wordset @var{SECURITY} contains words that are used by control
+words to abort with an error message if the control structure is not
+correct. Some say that this is not Forth-like.
+You only need to know them if want to extend the
+@var{CONTROL} wordset.
+    
+
+    
+
+@menu
+
+
+* !CSP  ::
+* ?COMP  ::
+* ?CSP  ::
+* ?EXEC  ::
+* ?LOADING  ::
+* ?PAIRS  ::
+* ?STACK  ::
+* CSP  ::
+@end menu
+@node !CSP, ?COMP, SECURITY, SECURITY
+@subsection !CSP
+@pindex !CSP
+
+Name: !CSP
+
+No stackeffect
+
+Attributes: 
+
+Description: 
+Save the stack position in @code{CSP}
+@findex CSP
+. Used as part of the compiler
+security.
+
+        
+
+
+@node ?COMP, ?CSP, !CSP, SECURITY
+@subsection ?COMP
+@pindex ?COMP
+
+Name: ?COMP
+
+No stackeffect
+
+Attributes: 
+
+Description: 
+Issue error message if not compiling.
+
+See also: @samp{?ERROR} 
+
+        
+
+
+@node ?CSP, ?EXEC, ?COMP, SECURITY
+@subsection ?CSP
+@pindex ?CSP
+
+Name: ?CSP
+
+No stackeffect
+
+Attributes: 
+
+Description: 
+Issue error message if stack position differs from value saved in
+@var{CSP} .
+
+        
+
+
+@node ?EXEC, ?LOADING, ?CSP, SECURITY
+@subsection ?EXEC
+@pindex ?EXEC
+
+Name: ?EXEC
+
+No stackeffect
+
+Attributes: 
+
+Description: 
+Issue an error message if not executing.
+
+See also: @samp{?ERROR} 
+
+        
+
+
+@node ?LOADING, ?PAIRS, ?EXEC, SECURITY
+@subsection ?LOADING
+@pindex ?LOADING
+
+Name: ?LOADING
+
+No stackeffect
+
+Attributes: 
+
+Description: 
+Issue an error message if not loading
+
+See also: @samp{?ERROR} 
+
+        
+
+
+@node ?PAIRS, ?STACK, ?LOADING, SECURITY
+@subsection ?PAIRS
+@pindex ?PAIRS
+
+Name: ?PAIRS
+
+Stackeffect: n1 n2 --
+
+Attributes: 
+
+Description: 
+Issue an error message if @var{n1} does not equal @var{n2} . The message
+indicates that compiled conditionals do not match.
+
+See also: @samp{?ERROR} 
+
+        
+
+
+@node ?STACK, CSP, ?PAIRS, SECURITY
+@subsection ?STACK
+@pindex ?STACK
+
+Name: ?STACK
+
+No stackeffect
+
+Attributes: 
+
+Description: 
+Issue an error message is the stack is out of bounds.
+
+See also: @samp{?ERROR} 
+
+        
+
+
+@node CSP, , ?STACK, SECURITY
+@subsection CSP
+@pindex CSP
+
+Name: CSP
+
+Stackeffect: ---- addr
+
+Attributes: U
+
+Description: 
+A user variable temporarily storing the stack pointer position, for
+compilation error checking.
+
+        
+
+
+
+
+@node STACKS, STORAGE,SECURITY, Glossary
+@section STACKS
+     
+    The wordset @var{STACKS} contains words related to the
+@dfn{data stack}
+@cindex data stack
+ and @dfn{return stack}
+@cindex return stack
+.
+Words can be moved between both stacks.
+Stacks can be reinitialised and the value used to initialise the
+@dfn{stack pointer}
+@cindex stack pointer
+'s can be altered.
+    
+
+    
+
+@menu
+
+
+* >R  ::
+* R0  ::
+* R>  ::
+* RP!  ::
+* RP@@  :r_p_fetch
+* R  ::
+* S0  ::
+* SP!  ::
+* SP@@  :s_p_fetch
+@end menu
+@node >R, R0, STACKS, STACKS
+@subsection >R
+@pindex >R
+
+Name: >R
+
+Stackeffect: n ---
+
+Attributes: C,L0
+
+Description: 
+Remove a number from the computation stack and place as the most
+accessable on the return stack. Use should be balanced with @code{R>}
+@findex R>
+ in
+the same definition.
+
+See also: @samp{R} 
+
+        
+
+
+@node R0, R>, >R, STACKS
+@subsection R0
+@pindex R0
+
+Name: R0
+
+Stackeffect: --- addr
+
+Attributes: U
+
+Description: 
+A user variable containing the initial location of the return stack. 
+
+See also: @samp{RP!} 
+
+        
+
+
+@node R>, RP!, R0, STACKS
+@subsection R>
+@pindex R>
+
+Name: R>
+
+Stackeffect: --- n
+
+Attributes: L0
+
+Description: 
+Remove the top value from the return stack and leave it on the
+computation stack. 
+
+See also: @samp{>R} 
+@samp{R} 
+
+
+        
+
+
+@node RP!, r_p_fetch, R>, STACKS
+@subsection RP!
+@pindex RP!
+
+Name: RP!
+
+No stackeffect
+
+Attributes: 
+
+Description: 
+Initialize the return stack
+pointer from user variable @code{R0}
+@findex R0
+ .
+
+        
+
+
+@node r_p_fetch, R, RP!, STACKS
+@subsection r_p_fetch
+@pindex RP@@
+
+Name: RP@@
+
+Stackeffect: --- addr
+
+Attributes: 
+
+Description: 
+Return the address @var{addr} of the current return
+stack position, i.e. pointing the current topmost value.
+  (e.g.  @samp{1 >R  RP@@  @@  . R>}     would
+   type @samp{1} )
+
+See also: @samp{S0} 
+@samp{SP!} 
+
+
+        
+
+
+@node R, S0, r_p_fetch, STACKS
+@subsection R
+@pindex R
+
+Name: R
+
+Stackeffect: --- n
+
+Attributes: 
+
+Description: 
+Copy the top of the return stack to the computation stack.
+
+See also: @samp{>R} 
+
+        
+
+
+@node S0, SP!, R, STACKS
+@subsection S0
+@pindex S0
+
+Name: S0
+
+Stackeffect: --- addr
+
+Attributes: U
+
+Description: 
+A user variable that contains the initial value for the data stack
+pointer.
+
+See also: @samp{SP!} 
+
+        
+
+
+@node SP!, s_p_fetch, S0, STACKS
+@subsection SP!
+@pindex SP!
+
+Name: SP!
+
+No stackeffect
+
+Attributes: 
+
+Description: 
+Initialize the stack pointer from @code{S0}
+@findex S0
+ .
+
+        
+
+
+@node s_p_fetch, , SP!, STACKS
+@subsection s_p_fetch
+@pindex SP@@
+
+Name: SP@@
+
+Stackeffect: --- addr
+
+Attributes: 
+
+Description: 
+Return the address @var{addr} of the stack position,
+as it was before @code{SP@@}
+@findex SP@@
+ was executed.
+  (e.g.  @samp{1  2  SP@@  @@  ...}     would
+   type @samp{2  2   1} )
+
+See also: @samp{S0} 
+@samp{SP!} 
+
+
+        
+
+
+
+
+@node STORAGE, STRING,STACKS, Glossary
+@section STORAGE
+     
+    The wordset @var{STORAGE} contains words to input and output
+to the mass storage, in this fig-Forth 
+ to the file
+@file{BLOCKS.BLK}.
+They are the underlying the @var{SCREEN} facilities.
+    
+
+    
+
+@menu
+
+
+* #BUFF  ::
+* +BUF  ::
+* B/BUF  ::
+* BLK  ::
+* BLOCK-EXIT  ::
+* BLOCK-FILE  ::
+* BLOCK-HANDLE  ::
+* BLOCK-INIT  ::
+* BLOCK  ::
+* BUFFER  ::
+* DISK-ERROR  ::
+* EMPTY-BUFFERS  ::
+* FIRST  ::
+* FLUSH  ::
+* LIMIT  ::
+* OFFSET  ::
+* PREV  ::
+* R/W  ::
+* UPDATE  ::
+* USE  ::
+@end menu
+@node #BUFF, +BUF, STORAGE, STORAGE
+@subsection #BUFF
+@pindex #BUFF
+
+Name: #BUFF
+
+Stackeffect: --- c
+
+Attributes: 
+
+Description: A constant that leaves the number of block buffers.
+
+
+See also: @samp{BLOCK} 
+
+        
+
+
+@node +BUF, B/BUF, #BUFF, STORAGE
+@subsection +BUF
+@pindex +BUF
+
+Name: +BUF
+
+Stackeffect: add1 --- addr2 f
+
+Attributes: FIG
+
+Description: 
+Advance the disc buffer address @var{addr1} to the address of
+the next buffer @var{addr2} . Boolean @var{f} is false
+when @var{addr2} is the buffer presently pointed to by variable
+@code{PREV}
+@findex PREV
+
+
+See also: @samp{BLOCK} 
+
+        
+
+
+@node B/BUF, BLK, +BUF, STORAGE
+@subsection B/BUF
+@pindex B/BUF
+
+Name: B/BUF
+
+Stackeffect: --- n
+
+Attributes: 
+
+Description: 
+This constant leaves the number of bytes per disc buffer, the byte
+count read from disc by @code{BLOCK}
+@findex BLOCK
+ .
+
+See also: @samp{B/SCR} 
+
+        
+
+
+@node BLK, BLOCK-EXIT, B/BUF, STORAGE
+@subsection BLK
+@pindex BLK
+
+Name: BLK
+
+Stackeffect: --- addr
+
+Attributes: U,L0
+
+Description: 
+A user variable containing the block number being interpreted. If
+zero, input is being taken from the terminal input buffer.
+
+See also: @samp{BLOCK} 
+@samp{TIB} 
+
+
+        
+
+
+@node BLOCK-EXIT, BLOCK-FILE, BLK, STORAGE
+@subsection BLOCK-EXIT
+@pindex BLOCK-EXIT
+
+Name: BLOCK-EXIT
+
+Stackeffect: ---
+
+Attributes: 
+
+Description: 
+A block file must have been opened by @code{BLOCK-INIT}
+@findex BLOCK-INIT
+ .
+Close the currently open block file @code{BLOCK-HANDLE}
+@findex BLOCK-HANDLE
+,
+i.e. the mass storage words no longer work, and will result in
+error messages.
+
+
+See also: @samp{BLOCK} 
+@samp{LIST} 
+@samp{LOAD} 
+@samp{DISK-ERROR} 
+
+
+
+
+        
+
+
+@node BLOCK-FILE, BLOCK-HANDLE, BLOCK-EXIT, STORAGE
+@subsection BLOCK-FILE
+@pindex BLOCK-FILE
+
+Name: BLOCK-FILE
+
+Stackeffect: ---addr
+
+Attributes: 
+
+Description: 
+Leave the address @var{addr} of a counted string,
+the name of a file in which blocks are (to be) allocated.
+The name may contain a path and be at most
+254 characters long.
+The default name is @var{BLOCKS.BLK} .
+
+
+See also: @samp{BLOCK-HANDLE} 
+@samp{BLOCK-INIT} 
+@samp{BLOCK-EXIT} 
+
+
+
+        
+
+
+@node BLOCK-HANDLE, BLOCK-INIT, BLOCK-FILE, STORAGE
+@subsection BLOCK-HANDLE
+@pindex BLOCK-HANDLE
+
+Name: BLOCK-HANDLE
+
+Stackeffect: ---n
+
+Attributes: 
+
+Description: 
+Leave a file handle in @var{n} .
+If it is negative there is no block file open,
+otherwise the handle is used by the system to access blocks.
+
+
+
+See also: @samp{BLOCK-FILE} 
+@samp{BLOCK-INIT} 
+@samp{BLOCK-EXIT} 
+
+
+
+        
+
+
+@node BLOCK-INIT, BLOCK, BLOCK-HANDLE, STORAGE
+@subsection BLOCK-INIT
+@pindex BLOCK-INIT
+
+Name: BLOCK-INIT
+
+Stackeffect: ---
+
+Attributes: 
+
+Description: 
+Map the blocks on the block file @code{BLOCK-FILE}
+@findex BLOCK-FILE
+,
+i.e. the mass storage words refer
+to the blocks in this file, using @code{BLOCK-HANDLE}
+@findex BLOCK-HANDLE
+ to acces it.
+If successful, @code{WARNING}
+@findex WARNING
+ is reinitialised to use disk messages.
+
+
+See also: @samp{BLOCK} 
+@samp{LIST} 
+@samp{LOAD} 
+@samp{BLOCK-EXIT} 
+@samp{DISK-ERROR} 
+
+
+
+
+
+        
+
+
+@node BLOCK, BUFFER, BLOCK-INIT, STORAGE
+@subsection BLOCK
+@pindex BLOCK
+
+Name: BLOCK
+
+Stackeffect: n --- addr
+
+Attributes: ISO FIG L0
+
+Description: 
+Leave the memory address of the block buffer containing block @var{n},
+which is the physical disk block @samp{OFFSET+n}.
+If the block is not already in memory, it is transferred from disc to
+which ever buffer was least recently written. If the block occupying
+that buffer has been marked as updated, it is rewritten to disc
+before block @var{n} is read into the buffer.
+In this experimental version @samp{PMASK} restricts the number of blocks to 0FFH.
+
+See also: @samp{BUFFER} 
+@samp{R/W} 
+@samp{OFFSET} 
+@samp{UPDATE} 
+@samp{FLUSH} 
+
+
+
+
+
+        
+
+
+@node BUFFER, DISK-ERROR, BLOCK, STORAGE
+@subsection BUFFER
+@pindex BUFFER
+
+Name: BUFFER
+
+Stackeffect: n --- addr
+
+Attributes: ISO FIG
+
+Description: 
+Obtain the next memory buffer, assigning it to block @var{n} .
+If the contents of the buffer is marked as updated, it is written to
+the disc. The block is not read from the disc. The address left is the
+first cell within the buffer for data storage.
+
+See also: @samp{BLOCK} 
+@samp{USE} 
+@samp{PREV} 
+
+
+
+        
+
+
+@node DISK-ERROR, EMPTY-BUFFERS, BUFFER, STORAGE
+@subsection DISK-ERROR
+@pindex DISK-ERROR
+
+Name: DISK-ERROR
+
+Stackeffect: --- addr
+
+Attributes: 
+
+Description: 
+Leave the address addr of a variable containing the
+latest disk error in opening, using or closing the block file.
+Negative means an error
+(the Unix @samp{errno} and zero means okay.)
+
+
+See also: @samp{BLOCK} 
+@samp{LINUX-ERROR} 
+
+
+        
+
+
+@node EMPTY-BUFFERS, FIRST, DISK-ERROR, STORAGE
+@subsection EMPTY-BUFFERS
+@pindex EMPTY-BUFFERS
+
+Name: EMPTY-BUFFERS
+
+No stackeffect
+
+Attributes: ISO FIG L0
+
+Description: 
+Mark all block-buffers as empty, not necessarily affecting the
+contents. Updated blocks are not written to the disc. This is also an
+initialization proceedure before first use of the
+disc.
+
+See also: @samp{FLUSH} 
+@samp{BLOCK} 
+@samp{SCREEN} 
+
+
+
+        
+
+
+@node FIRST, FLUSH, EMPTY-BUFFERS, STORAGE
+@subsection FIRST
+@pindex FIRST
+
+Name: FIRST
+
+Stackeffect: --- n
+
+Attributes: 
+
+Description: 
+A constant that leaves the address of the first (lowest) block
+buffer.
+
+
+See also: @samp{BLOCK} 
+@samp{LIMIT} 
+
+
+        
+
+
+@node FLUSH, LIMIT, FIRST, STORAGE
+@subsection FLUSH
+@pindex FLUSH
+
+Name: FLUSH
+
+No stackeffect
+
+Attributes: ISO FIG L0
+
+Description: 
+Transfer the content of each UPDATE d block buffer to disk.
+They are no longer associated with a block and their content is
+no longer available.
+
+
+See also: @samp{EMPTY-BUFFERS} 
+@samp{BLOCK} 
+@samp{SCREEN} 
+
+
+
+        
+
+
+@node LIMIT, OFFSET, FLUSH, STORAGE
+@subsection LIMIT
+@pindex LIMIT
+
+Name: LIMIT
+
+Stackeffect: ---- n
+
+Attributes: 
+
+Description: 
+A constant leaving the address just above the highest memory
+available for a disc buffer.
+Actually this is the highest system memory. 
+
+
+See also: @samp{BLOCK} 
+@samp{FIRST} 
+
+
+        
+
+
+@node OFFSET, PREV, LIMIT, STORAGE
+@subsection OFFSET
+@pindex OFFSET
+
+Name: OFFSET
+
+Stackeffect: --- addr
+
+Attributes: U
+
+Description: 
+A user variable which may contain a block offset to disc drives,
+such as to free part of it for boot-code.
+
+As blocks are allocated in a file on the host operating system it is 0.
+The
+contents of @code{OFFSET}
+@findex OFFSET
+ is added to the stack number by @code{BLOCK}
+@findex BLOCK
+ before calling
+ @var{R/W} .
+Messages by @code{MESSAGE}
+@findex MESSAGE
+ are independent of @code{OFFSET}
+@findex OFFSET
+ .
+
+See also: @samp{BLOCK} 
+@samp{MESSAGE } 
+
+
+        
+
+
+@node PREV, R/W, OFFSET, STORAGE
+@subsection PREV
+@pindex PREV
+
+Name: PREV
+
+Stackeffect: ---- addr
+
+Attributes: 
+
+Description: 
+A variable containing the address of the disc buffer most recently
+referenced. The @code{UPDATE}
+@findex UPDATE
+ command marks this buffer to be
+later written to disc.
+
+See also: @samp{BLOCK} 
+
+        
+
+
+@node R/W, UPDATE, PREV, STORAGE
+@subsection R/W
+@pindex R/W
+
+Name: R/W
+
+Stackeffect: addr blk f --
+
+Attributes: 
+
+Description: 
+The fig-FORTH standard disc read-write linkage. @var{addr}
+specifies the source or destination block buffer, @var{blk} is
+the sequential number of the referenced physical block; and
+@var{f} is a flag for @var{f}=0 write and @var{f}=l
+read. @code{R/W}
+@findex R/W
+ determines the location on mass storage,
+performs the read-write and aborts on errors.
+
+See also: @samp{BLOCK} 
+
+        
+
+
+@node UPDATE, USE, R/W, STORAGE
+@subsection UPDATE
+@pindex UPDATE
+
+Name: UPDATE
+
+No stackeffect
+
+Attributes: L0
+
+Description: 
+Marks the most recently referenced block (pointed to by
+@code{PREV}
+@findex PREV
+ ) as altered. The block will subsequently be
+transferred automatically to disc should its buffer be required for
+storage of a different block.
+
+See also: @samp{BLOCK} 
+@samp{SCREEN} 
+
+
+        
+
+
+@node USE, , UPDATE, STORAGE
+@subsection USE
+@pindex USE
+
+Name: USE
+
+Stackeffect: --- addr
+
+Attributes: 
+
+Description: 
+A variable containing the address of the block buffer to use next,
+as the least recently written.
+
+See also: @samp{BLOCK} 
+
+        
+
+
+
+
+@node STRING, SUPERFLUOUS,STORAGE, Glossary
+@section STRING
+     
+    The wordset @var{STRING} contains words that manipulate
+strings of characters.
+    
+
+    
+
+@menu
+
+
+* -TRAILING  ::
+* BL  ::
+* COUNT  ::
+* MATCH  ::
+@end menu
+@node -TRAILING, BL, STRING, STRING
+@subsection -TRAILING
+@pindex -TRAILING
+
+Name: -TRAILING
+
+Stackeffect: addr n1 --- addr n2
+
+Attributes: 
+
+Description: 
+Adjusts the character count @var{n1} of a text string beginning at
+address @var{addr} so as not to contain trailing blanks. 
+
+        
+
+
+@node BL, COUNT, -TRAILING, STRING
+@subsection BL
+@pindex BL
+
+Name: BL
+
+Stackeffect: --- c
+
+Attributes: 
+
+Description:  A constant that leaves the
+   ascii value for "blank".
+
+        
+
+
+@node COUNT, MATCH, BL, STRING
+@subsection COUNT
+@pindex COUNT
+
+Name: COUNT
+
+Stackeffect: addr1 --- addr2 n
+
+Attributes: L0
+
+Description: 
+Leave the byte address @var{addr2} and byte count @var{n} of a message text
+beginning at address @var{addr1} . It is presumed that the first byte at
+@var{addr1} contains the text byte count and the actual text starts with
+the second byte. 
+
+See also: @samp{TYPE} 
+
+        
+
+
+@node MATCH, , COUNT, STRING
+@subsection MATCH
+@pindex MATCH
+
+Name: MATCH
+
+Stackeffect: add1 n1 addr2 n2 -- f o
+
+Attributes: 
+
+Description: This word supposedly compares strings.
+Its documentation looked like this
+@example
+@cartouche STACK PARAMETERS:
+
+ ( cursor:addr   byte:left   str:addr  str:len
+           ---   flag  new:cursor:offset         )
+
+ This version of MATCH will handle string lengths
+      up to 65535 bytes in length.
+
+@end cartouche
+@end example
+I hope I interpreted this stack diagram right.
+
+
+        
+
+
+
+
+@node SUPERFLUOUS, SYSTEM,STRING, Glossary
+@section SUPERFLUOUS
+     
+    The wordset @var{SUPERFLUOUS} contains words that are superfluous,
+because they are equivalent to small sequences of code.
+Traditionally one hoped to speed Forth up by coding these words
+directly
+    
+
+    
+
+@menu
+
+
+* 0  ::
+* 1+  ::
+* 1  ::
+* 2+  ::
+* 2  ::
+* 3  ::
+@end menu
+@node 0, 1+, SUPERFLUOUS, SUPERFLUOUS
+@subsection 0
+@pindex 0
+
+Name: 0
+
+Stackeffect: --- 0
+
+Attributes: 
+
+Description: 
+Leave the number 0. 
+
+See also: @samp{CONSTANT} 
+
+        
+
+
+@node 1+, 1, 0, SUPERFLUOUS
+@subsection 1+
+@pindex 1+
+
+Name: 1+
+
+Stackeffect: n1 --- n2
+
+Attributes: L1
+
+Description: 
+Shorthand for ``@var{1} @code{+}
+@findex +
+''.
+
+        
+
+
+@node 1, 2+, 1+, SUPERFLUOUS
+@subsection 1
+@pindex 1
+
+Name: 1
+
+Stackeffect: --- 1
+
+Attributes: 
+
+Description: 
+Leave the number 1. 
+
+See also: @samp{CONSTANT} 
+
+        
+
+
+@node 2+, 2, 1, SUPERFLUOUS
+@subsection 2+
+@pindex 2+
+
+Name: 2+
+
+Stackeffect: n1 --- n2
+
+Attributes: 
+
+Description: 
+Shorthand for ``@var{2} @code{+}
+@findex +
+''.
+
+        
+
+
+@node 2, 3, 2+, SUPERFLUOUS
+@subsection 2
+@pindex 2
+
+Name: 2
+
+Stackeffect: --- 2
+
+Attributes: 
+
+Description: 
+Leave the number 2. 
+
+See also: @samp{CONSTANT} 
+
+        
+
+
+@node 3, , 2, SUPERFLUOUS
+@subsection 3
+@pindex 3
+
+Name: 3
+
+Stackeffect: --- 3
+
+Attributes: 
+
+Description: 
+Leave the number 3. 
+
+See also: @samp{CONSTANT} 
+
+        
+
+
+
+
+@node SYSTEM, VOCABULARIES,SUPERFLUOUS, Glossary
+@section SYSTEM
+     
+    The wordset @var{SYSTEM} contains words that call the underlying operating
+system or functions available in the BIOS-rom.
+    
+
+    
+
+@menu
+
+
+* ?LINUX-ERROR  ::
+* BYE  ::
+* LINOS  ::
+@end menu
+@node ?LINUX-ERROR, BYE, SYSTEM, SYSTEM
+@subsection ?LINUX-ERROR
+@pindex ?LINUX-ERROR
+
+Name: ?LINUX-ERROR
+
+Stackeffect: errno ---
+
+Attributes: 
+
+Description: 
+Handle the error @var{errno} by interpreting it as returned from a
+Linux system call. If it is negative error @var{-n} is displayed and the word
+is aborted.
+
+
+See also: @samp{?ERROR} 
+
+        
+
+
+@node BYE, LINOS, ?LINUX-ERROR, SYSTEM
+@subsection BYE
+@pindex BYE
+
+Name: BYE
+
+Stackeffect: ---
+
+Attributes: ISO FIG
+
+Description: 
+Return to the host environment Linux.
+
+
+See also: @samp{COLD} 
+
+        
+
+
+@node LINOS, , BYE, SYSTEM
+@subsection LINOS
+@pindex LINOS
+
+Name: LINOS
+
+Stackeffect: p1 p2 p3 n---ret
+
+Attributes: 
+
+Description:  Do a Linux
+system call (man 2) with parameters @samp{p1 p2 p3}.
+@var{ret} is the return value of the call. If it is negative, it
+is mostly an error, such as known by @var{errno} . This makes
+available forthemph(all) facilities present in Linux.
+
+
+See also: @samp{?LINUX-ERROR} 
+
+        
+
+
+
+
+@node VOCABULARIES, ,SYSTEM, Glossary
+@section VOCABULARIES
+     
+    The dictionary is subdivided in non-overlapping subsets:
+the @dfn{vocabulary}
+@cindex vocabulary
+'s. @xref{DICTIONARY}.
+They are created by the defining word
+@code{VOCABULARY}
+@findex VOCABULARY
+ and filled by defining words while that
+vocabulary is @code{CURRENT}
+@findex CURRENT
+ . They regulate how words are
+found, different vocabularies can have words with the same names.
+The wordset @var{VOCABULARIES} contains words that manipulate
+those vocabularies.
+    
+
+    
+
+@menu
+
+
+* CONTEXT  ::
+* CURRENT  ::
+* DEFINITIONS  ::
+* FORTH  ::
+* LATEST  ::
+* VOC-LINK  ::
+@end menu
+@node CONTEXT, CURRENT, VOCABULARIES, VOCABULARIES
+@subsection CONTEXT
+@pindex CONTEXT
+
+Name: CONTEXT
+
+Stackeffect: --- addr
+
+Attributes: U,L0
+
+Description: 
+A user variable containing a pointer to the vocabulary within which
+dictionary searches will first begin.
+
+See also: @samp{VOCABULARY} 
+@samp{CURRENT} 
+
+
+        
+
+
+@node CURRENT, DEFINITIONS, CONTEXT, VOCABULARIES
+@subsection CURRENT
+@pindex CURRENT
+
+Name: CURRENT
+
+Stackeffect: --- addr
+
+Attributes: U,L0
+
+Description: 
+A user variable containing a pointer to the vocabulary to which
+new words will be added.
+
+See also: @samp{VOCABULARY} 
+@samp{CONTEXT} 
+
+
+        
+
+
+@node DEFINITIONS, FORTH, CURRENT, VOCABULARIES
+@subsection DEFINITIONS
+@pindex DEFINITIONS
+
+Name: DEFINITIONS
+
+No stackeffect
+
+Attributes: L1
+
+Description: 
+Used in the form:
+           @var{cccc} @code{DEFINITIONS}
+@findex DEFINITIONS
+
+Set the @code{CURRENT}
+@findex CURRENT
+ vocabulary to the @var{CONTEXT} vocabulary. In the
+example, executing vocabulary name @var{cccc} made it the @code{CONTEXT}
+@findex CONTEXT
+
+vocabulary and executing @code{DEFINITIONS}
+@findex DEFINITIONS
+ made both specify vocabulary
+@var{cccc} .
+
+See also: @samp{VOCABULARY} 
+
+        
+
+
+@node FORTH, LATEST, DEFINITIONS, VOCABULARIES
+@subsection FORTH
+@pindex FORTH
+
+Name: FORTH
+
+No stackeffect
+
+Attributes: P,L1
+
+Description: 
+The name of the primary vocabulary.
+Execution makes @code{FORTH}
+@findex FORTH
+ the @code{CONTEXT}
+@findex CONTEXT
+ vocabulary. Until additional user
+vocabularies are defined, new user definitions become a part of
+@code{FORTH}
+@findex FORTH
+ . @code{FORTH}
+@findex FORTH
+ is immediate, so it will execute during the creation of
+a colon-definition, to select this vocabulary at compile time.
+
+See also: @samp{VOCABULARY} 
+
+        
+
+
+@node LATEST, VOC-LINK, FORTH, VOCABULARIES
+@subsection LATEST
+@pindex LATEST
+
+Name: LATEST
+
+Stackeffect: --- addr
+
+Attributes: 
+
+Description: 
+Leave the name field address ( @dfn{NFA}
+@cindex NFA
+ )
+of the topmost word in the @code{CURRENT}
+@findex CURRENT
+
+vocabulary.
+
+See also: @samp{VOCABULARY} 
+
+        
+
+
+@node VOC-LINK, , LATEST, VOCABULARIES
+@subsection VOC-LINK
+@pindex VOC-LINK
+
+Name: VOC-LINK
+
+Stackeffect: --- addr
+
+Attributes: U
+
+Description: 
+A user variable containing the address of the DLFA in the word
+most recently created by @code{VOCABULARY}
+@findex VOCABULARY
+ . All vocabulary names are
+linked by these fields to allow control for @code{FORGET}
+@findex FORGET
+ ting thru multiple
+vocabularies.
+
+See also: @samp{VOCABULARY} 
+
+        
+
+
+
+
+
+
+@node Glossary Index,,,Top
+@unnumbered Glossary Index
+This index finds the glossary description of each word.
+@printindex pg
+@node Forth Word Index,,,Top
+@unnumbered Forth Word Index
+This index contains @emph{all} references to a word.
+Use the glossary index to find the glossary description of each word.
+@printindex fn
+@node Concept Index,,,Top
+@unnumbered Concept Index
+The first reference is where the concept is explained.
+@printindex cp
+@summarycontents
+@contents
+@bye
+

@@ -1,0 +1,66 @@
+#  Copyright 2000 (c): Albert van der Horst, Dutch Forth Worksshop by GPL
+lina <<% | tail -n$#
+( Environmental dependancies : )
+( This is a fig Forth Program using only standard fig Words)
+( plus LINOS (par1, par2, par3, function# -- result/error )
+( The following words are not ANSI
+( WORD leaves the word at HERE instead of returning an address.)
+( VARIABLE expects an initial value. )
+( 1 is used for a true flag)
+
+9 CONSTANT TAB
+10 CONSTANT LF
+: IS-BLANK  ( char -- flag)
+  0 ( Innocent until proven guilty)
+  OVER TAB = OR
+  OVER LF = OR
+  OVER BL = OR
+  SWAP DROP ;
+
+0 VARIABLE LAST-WAS-BLANK
+0 VARIABLE L
+0 VARIABLE W
+0 VARIABLE C
+: ZERO-COUNT 0 L !   0 W !   0 C ! 1 LAST-WAS-BLANK ! ;
+: SHOW-COUNT SPACE L @ . W @ . C @ . CR ;
+
+1000000 CONSTANT SIZE
+0 VARIABLE BUFFER SIZE ALLOT
+: AT-WORD-START IS-BLANK  LAST-WAS-BLANK @ 0= AND ; ( char -- flag)
+( All four  : ( char -- char )
+: COUNT-L LF OVER = IF 1 L +! THEN ;
+: COUNT-W DUP AT-WORD-START IF 1 W +! THEN DUP IS-BLANK LAST-WAS-BLANK ! ;
+: COUNT-C 1 C +! ;
+: COUNT-CHAR COUNT-C COUNT-W COUNT-L ;
+: COUNT-BUFFER BUFFER SWAP OVER + SWAP DO I C@ COUNT-CHAR DROP LOOP ; ( len-)
+
+5 CONSTANT OPEN   
+3 CONSTANT READ  
+6 CONSTANT CLOSE 
+0 CONSTANT O_RDONLY 
+
+0 VARIABLE HANDLE
+: COUNT-FILE BEGIN HANDLE @ BUFFER SIZE READ LINOS DUP 0 >
+WHILE COUNT-BUFFER REPEAT DROP ;
+
+: ZERO-ENDED COUNT OVER + 0 SWAP C! ; ( filename -- c-zero ended filename )
+( c-name -- handle/err )
+: OPEN-LINUX ZERO-ENDED O_RDONLY 0 OPEN LINOS DUP ?LINUX-ERROR ; 
+: STILL-FILES HERE 1+ C@  ( -- flag ) ;
+: OPEN-FILE BL WORD STILL-FILES ( [filename-at-here] -- handle/-1 )
+    IF HERE COUNT TYPE HERE OPEN-LINUX ELSE -1 THEN  HANDLE ! ;
+: CLOSE-FILE HANDLE @ 0 0 CLOSE LINOS ?LINUX-ERROR ;
+
+: TREAT-FILE ZERO-COUNT COUNT-FILE SHOW-COUNT ;
+
+: DO-FILE BEGIN OPEN-FILE STILL-FILES WHILE TREAT-FILE CLOSE-FILE REPEAT BYE ;
+DO-FILE $*
+%
+
+# The remainder is interpreted by the shell as a here document,
+# but forth has long gone bye.
+# 
+# Note that we need to go BYE in DO-FILE otherwhise we get a spurious new
+# line. Furthermore we need ``|tail -n<number of file>'' otherwise there will
+# be a lot of OK's.
+
