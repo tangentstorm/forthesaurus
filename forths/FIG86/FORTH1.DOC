@@ -1,0 +1,1002 @@
+
+
+
+        I.  Introduction
+        II.  User's guide
+             A.  System requirements
+             B.  FORTH, calculator style
+                  1.  Getting started
+                  2.  Compiling definitions
+                  3.  Exiting FORTH
+             C.  Using the disk
+                  1.  FORTH's view of the disk
+                       a. Blocks
+                       b. Screens
+                  2.  Creating and editing new words
+                  3.  Compiling source definitions
+             D.  Modifying FORTH
+                  1.  Saving new FORTH's
+                  2.  Patching
+                  3.  Assembly source modification
+             E.  Glossary extension
+                  1.  Assembly listing definitions
+                  2.  Deleted words
+                  3.  High-level extensions
+             F.  FORTH application screens
+                  1.  Moving DOS files to FORTH screens
+                  2.  Using the screens
+        III.  Technical matters
+             A.  Modifications to fig-FORTH v1.0
+                  1.  Boot parameters
+                  2.  Machine code definitions
+                  3.  High-level utility definitions
+                  4.  Installation dependent code
+                       a.  Terminal i/o
+                       b.  Printer i/o
+                       c.  Disk i/o
+                  5.  High-level definitions
+                  6.  System tools
+                  7.  RAM workspace
+                  8.  Memory map
+        III.  Future extensions
+        IV.  FORTH sources
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        1
+
+
+
+
+
+
+
+
+             Thió ió á descriptioî oæ modificationó to¬  anä instructionó 
+        foò uså of¬ 808¶ fig-FORTÈ v1.0» aó modifieä foò MS-DOÓ by:
+
+             Joe Smith
+             University of Pennsylvania
+             Dept. of Chemistry
+             250 S. 33rd St.
+             Philadelphia, PA 19104
+
+        I.  Introduction
+
+             Iî  Augusô oæ 1981¬  havinç aî 8086¬  buô preciouó littlå tï 
+        ruî  oî  it¬  É  begaî tï investigatå  FORTÈ  aó  aî  alternativå 
+        programminç language®   Thå fiç assemblù listinç foò thå 808¶ waó
+        editeä  ontï disë durinç Apriì oæ 1982¬  usinç thå mnemonicó  foò 
+        Seattlå   Computeò  Productó  808¶  assembler®    Oncå  thå  texô 
+        interpreteò waó running¬ thå disë interfacå waó re-writteî tï ruî 
+        undeò SCP'ó 86-DOS®  Iî augusô oæ 1982¬ slighô modificationó werå 
+        madå tï takå advantagå oæ featureó supporteä bù MS-DOÓ v1.25.
+
+             Thå  originaì goaì waó tï instalì á languagå foò mù owî use®  
+        Thaô  ió  stilì mù primarù  interest®    Foò  thió  reason¬  thió 
+        versioî  oæ  thå  languagå  ió recommendeä  foò  peoplå  whï  arå 
+        familiaò  witè  theiò  computer¬  anä (somewhaô  lesó  important© 
+        familiaò witè FORTH®   Iæ yoõ arå ne÷ tï FORTH¬  yoõ wilì havå tï 
+        diç foò somå oæ thå basiã information®  Whilå iô ió certainlù onå 
+        waù tï learn¬ iô ió slo÷ anä sometimeó frustrating®  Iæ yoõ arå á 
+        persoî whï enjoyó understandinç anä tinkerinç witè thå mechanismó 
+        (reaä 'hacker')¬  yoõ shoulä feeì righô aô home®   Iæ  yoõ arå aî 
+        experienceä  FORTÈ  user¬  yoõ caî telì må alì thå thingó  É  diä 
+        wrong!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        2
+
+
+
+
+
+
+
+
+        II.  User's guide
+
+             Thió  documentatioî  presentó specifiã detailó necessarù  tï 
+        uså FORTÈ undeò MS-DOÓ (eô al.)®   Iô ió noô meanô tï bå á user'ó 
+        guide to FORTH in general.
+
+             A.  System requirements
+
+             Minimum:  16K + system, no disks   
+             Maximumº  64Ë « system¬ ² diskó  ½   standarä configuratioî 
+
+             B.  FORTH, calculator style
+                  1.  Getting started
+
+             Afteò executinç FORTÈ bù givinç COMMANÄ thå namå oæ thå .COÍ 
+        prograí wherå FORTÈ resides¬ á banneò wilì appeaò tï leô yoõ kno÷ 
+        FORTÈ  ió  readù  tï executå  youò  commands®   Thió  ió  FORTH'ó 
+        executioî state®   Aô thió point¬  typå á carriagå return»  FORTÈ 
+        shoulä  responä  witè  'ok'®   Iæ iô doesn't¬  theî  yoõ  havå  á 
+        problem®  
+
+             Keyboarä entrieó arå handleä bù thå FORTÈ worä EXPECT¬ whicè 
+        onlù knowó abouô twï 'special§ keysº  <BACKSPACE¾ anä <CR>®   Anù 
+        otheò keù ió assumeä tï bå á valiä character®   Nï MS-DOÓ editinç 
+        functionó arå available®   Thå exacô keù whicè EXPECÔ  recognizeó 
+        aó  <BACKSPACE¾ ió seô iî FORTH'ó colä starô parameteró tï <CTRL-
+        H¾ ¨ notå changå froí fig¬  wherå <BACKSPACE¾ ½ 5Æ heø )®  Iæ yoõ 
+        trù  tï backspacå pasô thå beginninç oæ thå  line¬  thå  terminaì 
+        shoulä  beeð  anä leavå thå cursoò aô thå beginninç oæ thå  line®  
+        Notå alsï thaô thå backspacå ió destructive¬  anotheò changå froí 
+        thå fig-FORTÈ EXPECT.
+
+             Otheò keyboarä functionó arå provideä bù  MS-DOS®   <CTRL-S¾ 
+        wilì  pauså consolå output»    <CTRL-P>/<CTRL-N¾ toggleó  printeò 
+        echo®  <CTRL-C¾ causeó executioî oæ thå FORTÈ worä (ABORT)¬ whicè 
+        executeó ABORT¬  haltinç anù i/o¬  resettinç thå texô interpreteò 
+        anä printinç thå start-uð banner®   ABORÔ clearó thå stacks¬  buô 
+        doesn'ô  emptù thå disë buffers®   Tï tesô theså functions¬  typå 
+        VLISÔ  <CR>®   VLISÔ  shoulä  begiî  printinç  thå  entirå  FORTÈ 
+        vocabularù aô thå console®   Tï pauså thå listing¬ typå <CTRL-S>» 
+        tï aborô thå listing¬ typå <CTRL-C>.
+
+             Notå thaô (ABORT© maù bå patcheä bù FORTÈ tï executå á user-
+        defined error handler.
+
+                  2.  Compiling definitions
+
+             Therå  ió nothinç peculiaò abouô enterinç definitionó aô thå 
+        keyboard®   Oncå yoõ typå á ':'¬  yoõ arå iî thå compilinç state®  
+        Nï  'ok§  ió printeä untiì yoõ finisè youò definitioî  witè  ';'®  
+        Definitionó maù havå uð tï 8° characteró oî á line¬  anä aó  manù 
+        lineó aó needed®  However¬  nï editinç ió possiblå oncå á linå ió 
+        endeä bù <CR>®   Iæ yoõ makå á mistake¬  youò definitioî musô  bå 
+        starteä over.
+
+
+
+                                        3
+
+
+
+
+
+
+
+
+             Try the following definition.
+
+             : STAR   42 EMIT ;<CR>
+
+        FORTÈ shoulä responä 'ok§ afteò yoõ typå thå <CR>®   No÷ trù youò 
+        definitioî  bù typinç STAR<CR>®   FORTÈ shoulä prinô  '*ok'®   Iæ 
+        thaô worked¬ trù this:
+
+             : MILKY-WAY
+               BEGIN  
+                  STAR SPACE SPACE 
+                  ?TERMINAL 
+               UNTIL ;
+
+        Remembeò  yoõ won'ô geô aî 'ok§ untiì yoõ finisè  thå  definitioî 
+        witè  thå semi-colon®   Anù leadinç spaceó oî á linå arå ignored®  
+        Tesô youò definitioî bù typinç MILKY-WAY<CR>®  Wheî yoõ geô tireä 
+        oæ staò gazing¬  stoð thå prograí bù hittinç anù key®  Thå  staró 
+        should stop, and FORTH should say 'ok'.
+
+             Iæ   yoõ  wanô  tï  trù  morå  definitions¬   feeì  freå  tï 
+        experiment¬  buô don'ô trù anù disë operations®   Aô thió  point¬ 
+        all you would get is garbage.
+
+                  3.  Exiting FORTH
+
+             BYÅ  ió thå usuaì fig-FORTÈ worä tï exiô FORTÈ anä returî tï 
+        the calling program; COMMAND normally, or DEBUG.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        4
+
+
+
+
+
+
+
+
+             D.  Using the disk
+
+                  1.  FORTH's view of the disk
+                       a.  Blocks
+
+             Thå  commoî  FORTÈ masó storagå devicå ió seeî aó  á  simplå 
+        arraù  oæ  blocks¬  referreä tï bù number¬  froí zerï uð  tï  thå 
+        physicaì capacitù oæ thå disk®   Theså blockó arå accesseä iî anù 
+        ordeò  anä  completelù  independenô oæ thå  MS-DOÓ  filå  system®  
+        Thus¬  FORTÈ  cannoô  accesó MS-DOÓ files¬  anä FORTÈ  diskó  arå 
+        nonsenså tï MS-DOS®   Foò thió reason¬  yoõ wilì neeä á  seperatå 
+        disk¬  dedicateä  tï  FORTÈ  screenó ONLY®   Thå disë  shoulä  bå 
+        formatteä  foò  single-densitù  IBÍ  format®    Thå  exacô   disë 
+        parameteró  caî bå changeä tï otheò formats¬  buô yoõ shoulä  uså 
+        thå  standarä oneó untiì yoõ kno÷ whaô yoõ arå doing®   Iæ  therå 
+        arå anù fileó oî thå disk¬ it'ó alrighô becauså FORTÈ wilì ignorå 
+        them®  
+
+
+                       b. Screens
+
+             Internally¬  FORTÈ  seeó  thå  disë aó  block-sizeä  pieces» 
+        however¬  thå useò ió presenteä witè á  fixed¬  1024-byte¬  chunë 
+        referreä  tï aó á screen®   Notå thaô á screeî may¬  oò maù  not¬ 
+        corresponä  tï onå block®   Á FORTÈ screeî appearó aó 1¶ lineó oæ 
+        6´  characters®   Thió  ió ONLÙ foò appearancå ¡   Therå  arå  nï 
+        physicaì  <CR>/<LF¾  characteró  betweeî  lines¬   anä  thå  63rä  
+        characteò  iî  anù  linå  ió  logicallù  adjacenô  tï  thå  firsô 
+        characteò iî thå followinç line®   Thå firsô linå oæ texô screenó 
+        ió usuallù reserveä foò á shorô descriptioî oæ thå contents.
+
+             Usinç  128-bytå  blocks¬  aî 8¢ disë iî thå standarä  formaô 
+        holdó 187² blockó ¨ 0-187± )¬  oò 23´ screenó ¨ 0-23³  )®   Blocë 
+        1872 is the first block on drive 1.
+
+             Tï  tesô FORTH'ó disë interface¬  trù thå  following®  Starô 
+        FORTÈ and¬  afteò yoõ geô thå 'ok'¬ replacå youò systeí disë witè 
+        á scratcè disë aó describeä above®  Bå prepareä tï LOSÅ ANÙ FILEÓ 
+        oî  thió disk¡   Checë thå currenô screeî bù typinç 'SCÒ ?§ ®  Iô 
+        shoulä bå ´ ¨ whicè ió thå initiaì valuå foò thå variablå SCÒ  )®  
+        Iæ  iô isn't¬  typå COLD¬  anä repeaô thå abovå  procedure®   Thå 
+        currenô screeî shoulä no÷ bå 4®  Typå EDITOÒ tï selecô thå editoò 
+        vocabulary¬  theî  enteò 'WIPE§ tï filì thió screeî witè  blanks®  
+        Don'ô bå alarmeä iæ therå ió nï disë activitù aô thió point®  No÷ 
+        typå 'L§ tï vie÷ thå screeî - iô shoulä bå alì blanks®   No÷ typå 
+        'FLUSH'®   No÷  therå  shoulä bå somå disë  activity¬  anä  FORTÈ 
+        shoulä returî 'ok'®  Iæ therå seemó tï bå somå problem¬ dï á COLÄ 
+        start¬  anä trù again®   Iæ thå probleí persists¬  makå surå  thå 
+        scratcè  disë ió properlù formatted¬  anä trù again®   Hopefully¬ 
+        therå won'ô bå anù hangups¬  anä you'lì geô thå 'ok'®   No÷  typå 
+        'L§  again®   FORTÈ  shoulä gï bacë tï thå disk¬  theî  lisô  thå 
+        blanë  screen®   
+
+
+
+
+
+                                        5
+
+
+
+
+
+
+
+
+             Enteò somå texô intï linå zerï oæ thå screeî bù typinç '° T§ 
+        followeä  bù 'Ð ¨ thió ió screeî 4¬  linå ° )'®   Lisô thå screeî 
+        agaiî tï makå surå thå texô ió properlù placed¬  anä uså FLUSÈ tï 
+        senä iô tï thå disk®  Wheî yoõ typå 'L§ again¬ thå texô shoulä bå 
+        jusô aó yoõ lefô it.
+
+                  2.  Creating and editing new words
+
+             Therå  arå  twï line-orienteä editoró includeä iî thå  FORTÈ 
+        screens®  Onå ió thå editoò aó describeä iî "Startinç FORTH"» thå 
+        otheò   ió  thå  fig-FORTÈ  portablå  editoò  describeä  iî   thå 
+        Installatioî  Manual®   Thå  editoró maù bå useä tï placå  sourcå 
+        texô  oî disk¬  wherå iô caî bå modifieä withouô  re-writinç  thå 
+        wholå  definition®   Thå editoò describeä iî "Startinç FORTH¢ haó 
+        beeî compileä anä includeä iî thå .COÍ file.
+
+             Trù  editinç  thå definitionó abovå foò STAÒ  anä  MILKY-WAÙ 
+        onto a screen on your scratch disk.
+
+                  3.  Compiling source screens
+
+             Wheî  yoõ havå finisheä enterinç thå definitions¬  uså FLUSÈ 
+        tï makå surå thå disë haó thå latesô versioî oæ thå screen¬  theî 
+        typå '´ LOAD'®  Iæ FORTÈ sayó 'ok'¬ tesô youò ne÷ versionó oæ thå 
+        definitionó  tï makå surå theù werå compileä correctly®   Iæ  yoõ 
+        geô  aî erroò whilå loading¬  uså WHERÅ tï seå thå linå wherå thå 
+        problem is.
+
+             Iæ everythinç lookó 'ok§ uð tï thió point¬  theî yoõ caî uså 
+        DEBUÇ, aó describeä below anä iî thå terminaì sessioî listing¬ tï 
+        movå  thå MS-DOÓ filå oæ FORTÈ screenó oveò tï youò scratcè  disë 
+        where FORTH can use them.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        6
+
+
+
+
+
+
+
+
+              E®  Modifyinç FORTH
+                  1.  Saving new FORTHs
+
+             Onå oæ thå nicå thingó abouô FORTÈ ió thå abilitù tï  extenä 
+        thå language®   Iæ yoõ definå á worä whicè yoõ wanô tï uså often¬ 
+        withouô re-compilinç iô everù time¬ yoõ caî savå thå changeó iî á 
+        ne÷ .COÍ file®   Thå procesó involveó usinç DEBUÇ tï loaä FORTH'ó 
+        FORTÈ itselæ )¬ executinç thå FORTÈ wordó NE× ¨ whicè updateó alì 
+        thå COLÄ starô parameteró © anä SIZE¿  ¨ whicè telló yoõ ho÷  biç 
+        thå  ne÷ dictionarù ió )¬  theî exitinç FORTÈ anä usinç DEBUÇ  tï 
+        writå  thå  ne÷  .COÍ file®   Foò á  detaileä  example¬  seå  thå 
+        terminaì sessioî listing.
+
+             FORTH'ó   .COÍ  filå  aó  distributeä  waó  constructeä   bù 
+        assemblinç thå source¬  theî LOADinç additionaì wordó ¨ includinç 
+        thå  editoò )¬  anä savinç thå resultinç dictionarù usinç  DEBUG®  
+        Thå FORTÈ screenó loadeä tï producå FORTH.COÍ caî bå founä iî thå 
+        terminaì sessioî listing.
+
+                  2.  Patching
+
+             Most  oæ thå parameteró whicè affecô thå operatioî oæ  FORTÈ 
+        arå placeä iî thå boot-uð parameteò areá aô thå lo÷ enä oæ FORTH®  
+        Theså maù bå freelù modifieä usinç DEBUG¬  oò froí withiî  FORTH®  
+        Oî  executioî  oæ  COLD¬  thå changeó wilì bå  incorporateä  intï 
+        FORTH®  Patcheó sucè aó thió caî bå madå permanenô usinç DEBUG.
+
+                  2.  Assembly source modification
+
+             Changeó  noô possiblå througè thå otheò twï methodó  caî  bå 
+        incorporateä  intï  thå assemblù source®   Yoõ caî studù thå  fiç 
+        listinç foò detailó oî thå inneò workingó oæ thå interpreter;  oò 
+        my listing for details specific to MS-DOS.
+
+             Notå  thå  alignmenô requirements®   Thå ALIGÎ pseudo-oð  ió 
+        requireä  wheî  thå  namå  lengtè ió  even¬  anä  alsï  wheî  thå 
+        alignmenô  maù  havå beeî losô iî thå  previouó  word®   Thió  ió 
+        sï thaô yoõ caî calculatå thå linë fielä foò thå followinç word.
+
+             Bå  awarå oæ twï problemó hereº  first¬  iô ió verù easù  tï 
+        loså   tracë   oæ  thå  changeó  yoõ  make¬   sï  documenô   EACÈ 
+        modification®   Second¬  morå changeó makå youò versioî oæ  FORTÈ 
+        morå uniquå ¨ oò maybå jusô strangå )¬  anä anù definitionó usinç 
+        thaô  uniquå featurå lesó portable®   Weigè theså factoró  beforå 
+        makinç changeó tï thå source®   Don'ô adä belló anä whistleó jusô 
+        to be different.
+
+
+
+
+
+
+
+
+
+
+
+                                        7
+
+
+
+
+
+
+
+
+             F.  Glossary extension
+
+             Thå  followinç  ió  aî extensioî oæ thå  fig-FORTÈ  glossarù 
+        included in the fig Installation manual.
+
+                  1.  Assembly listing additions
+
+             Thå  followinç  wordó werå addeä tï  thå  assemblù  listing®  
+        They are all CODE level words.
+
+             (2ARR)                   n1 n2 PFA -- addr
+        Twï  dimensionaì arraù primitivå useä bù 2ARRAY®   Thå addresó oæ 
+        thå arraù elemenô aô ro÷ n1¬  columî n² oæ aî arraù beginninç  aô 
+        PFA+´  ió  lefô oî thå stack®   Iô ió assumeä thaô thå rowsizå  ¨ 
+        i.e.¬  £ columnó © ió storeä aô PFA®  Thå contentó oæ PFA+² woulä 
+        normallù  holä  thå  numbeò  oæ rows¬  buô ió  noô  useä  iî  thå 
+        calculation.
+
+             (2CARR)                  n1 n2 PFA -- addr
+        Twï  dimensionaì  bytå  arraù primitivå  useä  bù  STRINGS®   Thå 
+        addresó  oæ  thå arraù elemenô aô ro÷ n1¬  columî n² oæ aî  arraù 
+        beginninç aô PFA+´ ió lefô oî thå stack®   Iô ió assumeä thaô thå 
+        rowsizå  ió storeä aô PFA®   Thå contentó oæ PFA+² coulä holä thå 
+        numbeò  oæ rowó oò thå currenô lengtè oæ thå string»  iô  ió  noô 
+        useä iî thå calculation.
+
+             (ARRAY)                  n PFA -- addr
+        Integeò  arraù primitivå useä bù ARRAY®   Thå addresó oæ thå  ntè 
+        elemenô iî thå arraù beginninç aô PFA+² ió calculateä anä lefô oî 
+        the stack.  The length of the array is stored at PFA.
+
+             (CARR)                   n PFA -- addr
+        Bytå  arraù  primitivå useä bù CARRAY®   Thå addresó oæ  thå  ntè 
+        characteò iî thå arraù beginninç aô PFA+² ió calculateä anä  lefô 
+        oî thå stack®   Thå lengtè oæ thå array¬ oò currenô lengtè oæ thå 
+        string may be stored at PFA.
+
+             (XOF)                    n1 n2 -- n1 ( no match, n1<>n2 )
+                                      n1 n2 --    ( match, n1=n2 )
+        Controì  structurå primitivå compileä bù OF®   Iæ thå caså  beinç 
+        scanneä  foò (n1© matcheó thå currenô caså (n2)¬  thå taç  n±  ió 
+        dropped¬  anä thå FORTÈ wordó followinç thå brancè compileä bù OÆ 
+        arå executed®   Iæ thió ió noô thå caså selected¬ thå taç ió lefô 
+        oî thå stack¬ anä scanninç continueó witè thå nexô case.
+
+             1-                       n -- n-1
+             2-                       n -- n-2
+        Decrement operators.
+
+
+
+
+
+
+
+
+
+                                        8
+
+
+
+
+
+
+
+
+             :!                       n seg offset --
+             :@                       seg offset   -- n
+             :C!                      n seg offset --
+             :C@                      seg offset   -- n
+        Faò fetch/storå operators®   Theså arå similaò tï thå usuaì FORTÈ 
+        fetch/storå words¬  excepô theù uså á double-worä address®   Notå 
+        that the absolute location accessed is: seg*16 + offset.
+
+             BLOCK-READ               --
+             BLOCK-WRITE              --
+        Primitivå  routineó responsiblå foò disë access®   Theså routineó 
+        uså  thå  FORTÈ variableó DRIVE¬  USE¬  SEC/BLK¬  anä  RECORÄ  tï 
+        transfeò  thå  appropriatå  numbeò oæ disë  recordó  to/froí  thå 
+        buffeò  specifieä  bù  USE®   Thå FORTÈ  variablå  DISK-ERROÒ  ió 
+        set/reseô  tï  signaì  aî  error®   DISK-ERROÒ  ió  zerï  iæ  thå 
+        operatioî  waó successful»  non-zerï iæ not®   Thå erroò codå  ió 
+        thaô returneä bù thå MS-DOÓ read/writå interruptó ¨ 25È ¦ 26È  )¬ 
+        excepô thaô writå erroró are negative.
+
+             DATE!                    mon day yr --
+             DATE@                    -- yr day mon
+        Datå fetch/storå operators®   Iæ anù oæ thå parameteró arå ouô oæ 
+        range, no changes are made.
+
+             MYSEG                    -- seg
+        Thió  worä  returnó thå valuå oæ FORTH'ó currenô  segment®   Thió 
+        allowó  thå  thå faò fetch/storå operatoró  tï  accesó  locationó 
+        inside FORTH in the usual way.
+
+             PRINTER                  -- addr
+        Á  variablå whicè causeó consolå i/ï tï bå echoeä tï thå printer®  
+        Iæ PRINTEÒ ió non-zero¬  thå printeò ió 'on'®   Notå thaô thió ió 
+        independenô oæ thå <CTRL-P>/<CTRL-N¾ echï !
+
+             RECORD                   -- addr
+        Á  variablå whicè containó thå numbeò oæ thå lasô logicaì  recorä 
+        accessed®   RECORÄ  ió seô bù T&SCALÃ anä useä bù BLOCK-REAÄ  anä 
+        BLOCK-WRITE.
+
+             TIME!          [sec csec] [hr min] --
+             TIME@          -- [sec csec] [hr min]
+        Timå  store/fetcè operators®   Theså routineó set/geô thå  systeí 
+        time®  Iæ anù oæ thå parameteró arå invalid¬ nï changeó arå made®  
+        Alì oæ thå valueó arå bytes¬  buô arå packeä intï ² words»  i.e.¬ 
+        thå  lo÷ bytå oæ thå toð stacë iteí holdó thå minutes¬  thå  higè 
+        byte holds the hours, and so on.
+
+
+
+
+
+
+
+
+
+
+
+                                        9
+
+
+
+
+
+
+
+
+                  2.  Deleted words
+
+             Thå  followinç  wordó appearinç iî thå fiç assemblù  listinç 
+        were not used, and therefore deleted.
+
+             SEC
+             TRACK
+             SET-IO
+             SET-DRIVE
+             SECRD
+             SECWT
+
+                  3.  High-level extensions.
+
+             Thå  followinç  wordó werå addeä bù compilinç FORTÈ  screenó 
+        anä  savinç  thå ne÷ versioî oæ FORTÈ  usinç  DEBUG®   Thå  FORTÈ 
+        sourcå foò alì oæ theså wordó ió includeä iî thå screeî file.
+
+             ARRAY
+             2ARRAY
+             STRING
+             STRINGS
+        ± anä ² dimensionaì arraù defininç words®  Seå thå sourcå screenó 
+        for more comments.
+
+             CASE
+             OF  ENDOF
+             ENDCASE
+        Theså  wordó  adä  á caså construcô tï  FORTH®   Theù  havå  beeî 
+        documenteä  iî  severaì differenô places®   Seå screeî 2² foò  aî 
+        example.
+
+             DUMP                addr -- addr2
+        Thió  worä  displayó thå contentó oæ locatioî  addò  tï  addr2-1» 
+        addr²  ió  lefô oî thå stacë sï thaô DUMÐ caî bå entereä  withouô 
+        keepinç tracë oæ thå address®   Thå dumð ió iî thå currenô numbeò 
+        base®   Á  variablå SEGMENÔ ió useä aó thå base¬  anä addò ió  aî 
+        offset in that segment.  SEGMENT is initialized to MYSEG.
+
+             NEW                      --
+        NE× updateó thå start-uð parameteró tï reflecô thå currenô  statå 
+        oæ  FORTH®   Thió allowó compileä definitionó tï bå retaineä wheî 
+        COLÄ ió executed®   Notå thaô oncå NE× ió executed¬  iæ thå addeä 
+        wordó  arå  deleteä bù FORGET¬  thå start-uð parameteró  wilì  bå 
+        wrong, and NEW must be done again before a cold start.
+
+             SIZE?                    --
+        Showó  thå  currenô sizå oæ thå FORTÈ dictionary¬  anä  thå  freå 
+        spacå remaining®   Thió ió primarilù usefuì foò tellinç DEBUÇ ho÷ 
+        biç  á filå tï creatå wheî savinç á ne÷ versioî  oæ  FORTH®   NE× 
+        must be run before saving a different version.
+
+
+
+
+
+
+                                       10
+
+
+
+
+
+
+
+
+             G.  FORTH application screens
+                  1.  Moving DOS files to FORTH screens
+             
+             Occasionallù  iô maù bå usefuì tï havå FORTÈ screenó  residå 
+        iî á DOÓ file®  DEBUÇ maù bå employeä tï transfeò screenó betweeî 
+        thå twï environments®   Bå careful¬ back-uð botè diskó BEFORÅ yoõ 
+        makå á mistake®  Seå thå terminaì sessioî listingó foò á detaileä 
+        example.
+
+                  2.  Using the screens
+
+             Sincå  mosô  oæ thå screenó arå simplå utilties¬  theiò  uså 
+        shoulä bå self-evident®   Hopefully¬  iî thå future¬ morå compleø 
+        applications can be distributed.
+
+             LIFE
+
+        Thå  LIFÅ  prograí  provideä ió nicå tï watch¬  buô ió  noô  verù 
+        clearlù  written®   Yoõ wilì havå tï writå youò owî  routineó  tï 
+        positioî thå cursoò oî youò terminal®  Thå wordó oî screeî 3± maù 
+        servå  aó á model®   Afteò loadinç thå firsô screeî ¨ 3µ LOAÄ  )¬ 
+        FORTÈ  wilì  inforí  yoõ ho÷ tï starô thå game®   Tï seô  uð  thå 
+        board¬   uså  <SPACE¾ ¯ <BACKSPACE¾ tï movå thå cursoò righô  anä 
+        left¬  anä <LINEFEED¾ tï movå down¬  oò <CR¾ tï movå dowî anä  tï 
+        the beginning of the line.  <ESC> starts the activity.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                       11
+
+
+
+
+
+
+
+
+        III.  Technical matters
+
+             A.  Modifications to fig-FORTH v1.0
+
+             Thió  sectioî describeó specifiã changeó tï thå fiç  listinç 
+        aó  outlineä  iî  thå Installatioî Manual®   Thå  headingó  belo÷ 
+        corresponä tï thoså iî thå manual»  iæ nï changeó arå  noted¬  nï 
+        changeó havå beeî madå tï thaô parô oæ thå model.
+
+                  1.  Boot parameters
+
+             14 +ORIGIN ( BSIN ) Changed to 08 ( ASCII CTRL-H )
+
+                  2.  Machine code definitions
+
+             (FIND©  Changeä tï accomodatå word-aligneä LFA's® Seå CREATÅ 
+        below.
+
+                  3.  High-level utility definitions
+
+             1+  2+   Changed to CODE level definitions.
+             TRAVERSE Modified to handle word-aligned LFA's
+             PFA      Modified to handle word-aligned PFA's
+             EXPECT   Backspace made destructive
+             ID.      Modified to reset MSB of last character
+             CREATÅ   Modifieä  tï compilå dictionarù entrieó witè  word-
+        aligneä  LFA®   Iæ  DÐ ió odä afteò compilinç  thå  name¬  DÐ  ió 
+        incremented¬  sï  thaô  thå resô oæ thå definitioî falló aô  eveî 
+        adresses®   Iæ  bytå  valueó  arå compileä  intï  thå  definitioî 
+        subsequently¬  thå alignmenô maù bå lost®   Notå thaô thå  lengtè 
+        bytå  aô  NFÁ stilì giveó thå exacô lengtè oæ thå name¬  buô  noô 
+        necessarilù thå displacemenô tï thå LFA.
+             QUIT     Prints lower case 'ok'
+             ABORT    Changed to print the user version as well
+             COLD     Sets SCR to 4
+
+                  4.  Installation dependent code
+                       a.  Terminal i/o
+
+             (KEY)          uses MS-DOS function 8
+             (EMIT)         uses MS-DOS function 2
+             (?TERMINAL)    uses MS-DOS function 11
+             (CR)           uses MS-DOS function 2
+
+                       b.  Printer i/o
+
+             EPRINT   Changed to PRINTER
+
+
+
+
+
+
+
+
+
+
+                                       12
+
+
+
+
+
+
+
+
+                       c.  Disk i/o
+             Alì  disë  parameteró  werå moveä tï thå  beginninç  oæ  thå 
+        listing¬  anä alì LITERAÌ parameteró iî definitionó werå  changeä 
+        tï uså thå EQÕ symbols¬  oò  FORTÈ variableó ¨ +BUF¬  R/× )®  Alì 
+        disë  i/ï  ió donå througè thå blocë read/writå  interruptó  25H¬ 
+        26H®   Thå  variableó  DISK¬  RECORD¬  SEC/BLË anä USÅ  servå  tï 
+        specifù thå disë record anä transfeò address.
+
+             T&SCALÃ setó DISË anä RECORÄ  froí thå blocë numbeò supplieä 
+        bù R/W.
+
+             R/× calló T&SCALC¬ theî BLOCK-REAÄ oò BLOCK-WRITE®  Iæ DISK-
+        ERROÒ ió non-zero¬  messagå #¸ ió issueä anä thå buffeò ió markeä 
+        aó  unused®   DISK-ERROÒ caî bå examineä bù thå useò tï finä  thå 
+        exacô  causå oæ thå error®   Thå erroò codeó arå aó specifieä  iî 
+        thå  MS-DOÓ documentation¬  excepô writå erroró arå  returneä  aó 
+        negativå  numberó ¨ e.g®  DISK-ERROÒ ½ -² foò noô readù erroò  oî 
+        writå operatioî ).
+
+                  5.  High-level definitions
+                  6.  System tools
+                  7.  Ram workspace
+                  8.  Memory map
+
+             Thå  memorù mað waó expandeä tï uså alì 64Ë ¨ LIMIÔ ½  °  )¬ 
+        and 16 block-buffers.
+
+                  9.  Other
+
+             COLÄ  setó  thå <CTRL-C¾ interrupô vectoò ¨ MS-DOÓ  functioî 
+        25è © tï thå addresó oæ á codå fragmenô whicè vectoró thå  inter-
+        preteò tï (ABORT).
+             BYE causes execution of interrupt 20h.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                       13
+
+
+
+
+
+
+
+
+             H.  Future extensions
+
+             Therå  arå á numbeò oæ thingó É woulä likå tï adä tï  FORTH» 
+        alì  involvå á certaiî amounô oæ work¬  anä somå arå noô  aô  alì 
+        trivial®   Iæ  yoõ  arå interesteä iî makinç somå suggestionó  oò 
+        contributinç  anù changes¬  É woulä certainlù enjoù  talkinç  anä 
+        trading.  A list of these extensions would include:
+
+             Immediate future:   High-level character string operators
+                                 High-level floating point
+                                 Screen editor(s)
+                                 Assembler
+                                 Commanä linå argumentó ¨ thió ió á  verù 
+                                      simple  possibility, I just haven't 
+                                      found a good use for it )
+
+             Neaò  futureº       Reaì MS-DOÓ filå interfacå ¨ noô  jusô 
+                                   random access )
+                                 I/O redirection via execution vectors
+                                 CODE level character string functions
+
+             ???   future:       Cross/target compiler
+                                 CODÅ leveì floating-poinô ¯ 808· support
+                                 Multi-segmented
+                                 Multi-tasking
+                                 Tree structured vocabularies/file system
+                                 High-level interrupt handling
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                       14
+
+
+
+
+
+
+
+
+                     IV®  FORTÈ sources
+             Thå   followinç   arå  sourceó  oæ   informatioî   regardinç 
+        implementatioî anä uså oæ FORTH.
+
+             Startinç FORTH®  Leï Brodie¬ FORTH¬ Inc® Prentice-Halì 1981
+        Excellenô introductorù material.
+
+             Byte¬ vol.µ no.8¬ Augusô 1980
+        Languagå  issuå  devoteä tï FORTH®  Gooä discussioî  oæ  defininç 
+        wordó anä FORTÈ internals.
+
+             Dr® Dobbó Journal¬ vol.¶ no.9¬ Septembeò 1980
+             Dr® Dobbó Journal¬ vol.· no.9¬ Septembeò 1981
+        Issueó devoteä tï FORTÈ topics.
+
+             FORTÈ Interesô Group
+             P.O® Boø 1105
+             Saî Carlos¬ CÁ  94070
+        Publiã domaiî listings¬ bi-monthlù newletteò FORTÈ Dimensions.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                       15
+
+
+
+
+
+
+
+
+        This disk copy was originally provided by "The Public Library",
+        the software library of the Houston Area League of PC Users.
+ 
+        Programs are available from the Public Library at $2 per disk
+        on user-provided disks.  To get a listing of the disks in the
+        Public Library, send a self-addressed, stamped envelope to
+
+             Nelson Ford,  P.O.Box 61565,  Houston, TX 77208.
+

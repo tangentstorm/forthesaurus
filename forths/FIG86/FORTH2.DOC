@@ -1,0 +1,140 @@
+     Thå  followinç ió a  samplå MS-DOÓ terminaì sessioî iî whicè 
+the following operations occur:
+
+          1.   A disk is formatted for later use by FORTH.
+          2.   FORTH is started and used calculator-style.
+          3®   DEBUÇ  ió useä tï movå thå filå FORTH.SCÒ  tï  thå
+                    abovå formatteä disk.
+          4®    Á ne÷ versioî oæ FORTÈ ió createä bù loadinç somå 
+                    of the screens from the new disk.
+          5®    DEBUÇ ió useä tï savå thå ne÷ versioî oæ FORTÈ iî 
+                    the file 4TH.COM.
+
+
+     Noteº   commentó arå seô ofæ tï thå right¬  anä aî  ellipsió 
+indicates some of the listing has been deleted.
+
+
+MS-DOS version 1.25
+Copyright 1981,82 Microsoft, Inc.            boot up message
+  .
+  .
+  .
+A>FORMAT B:                                  clear a disk
+Insert new diskette for drive B:
+and strike any key when ready
+  .
+  .
+  .
+   252416 bytes total disk space
+   252416 bytes available on disk            single density,
+                                             IBÍ format¬ nï system
+                                             files
+  .
+  .
+  .
+A>FORTH                                      run FORTH.COM
+
+
+8086 Fig-FORTH  Version 1.0A                 start-up banner
+ ok                                          user typed <CR>
+15 SPACES                ok
+42 EMIT *ok
+: STAR 42 EMIT ; ok                          define a word 'STAR'
+STAR *ok                                     try it
+ ok                                          
+º  STARÓ  1°  °  DÏ  STAÒ  LOOÐ » oë         definå á worä 'STARS'
+STARS **********ok                           try it
+ ok
+  .                                          the following calculation 
+  .                                          is used below when creating 
+  .                                          the FORTH disk from FORTH.SCR
+
+39 ok                                        = screens in FORTH.SCR: 0-38
+8 ok                                         = blocks per screen
+* ok                                         = no. of records toŠ  . 312 ok                                       transfer ( 8*39 = 312 )
+312 HEX . 138 ok                             print 312 in hex for later use
+ ok
+BYE
+A>                                           back to COMMAND
+  .
+  .
+  .
+A>DEBUG FORTH.SCR                            start DEBUG, and
+>                                            load FORTH.SCR at
+>                                            location 100H
+>
+>                                            place the newly formatted disk
+>                                            in drive B:
+>
+>W 100 1 0 138                               write, from location
+¾                                            100H¬ recordó 0-137H ( the 312
+>                                            from before ) on drive 1 (B)
+>Q                                           quit
+A>
+A>                                           switch disks A & B
+A>B:
+B>DEBUG FORTH.COM
+>G                                           back to FORTH
+
+8086 Fig-FORTH Version 1.0B
+ ok
+´  LISÔ                                      thå FORTÈ screenó are
+SCR # 4                                      now in drive A, on
+  0 ( System messages )                      the disk formatted
+  1 empty stack                              above
+  2 dictionary full
+  .
+  .
+  .
+ 14
+ 15
+ok
+4 38 INDEX                                        screens 0-3 are blank
+
+  4 ( System messages )
+  5 ( System messages )
+  6
+  7
+  8 ( Dr. Eaker's CASE construct: FD 3:187 1982 )
+  9 ( 1 and 2 dimensional array definitions )
+ 10 ( "Starting Forth" line editor - load screen )
+  .
+  .
+  .
+ 37 ( THE GAME OF LIFE, CONTINUED )
+ 3¸ ¨ THÅ GAMÅ OÆ LIFE¬ CONTINUEÄ ©ok             thå lasô screeî 
+ ok                                               in FORTH.SCR
+ ok
+¹ LOAÄ 3¹ LOAÄ 1° LOAÄ 2µ LOAÄ                    adä wordó tï theŠ  .                                               dictionary:
+  .                                               9=CASÅ/ENDCASE
+  .                                               39=arrays
+                                                  10=editor
+                                                  25=NEW,SIZE?
+
+ ok
+NEW
+current version is A
+new version (A-Z)? Bok                            update cold-
+ ok                                               starô parameters
+HEX
+SIZE?   25C4 bytes used,   D11C bytes free  ok    see how big the
+                                                  dictionary is -
+                                                  note HEX !
+BYE
+Program terminated normally                       back in DEBUG
+>RCX                                              set CX reg. to
+CØ 1AAÅ                                           reflecô thå larger
+: 25C4                                            size
+>
+>N 4TH.COM                                        this will be
+                                                  FORTÈ for normal use
+>
+>W                                                write the new FORTH
+Writing 25C4 bytes                                to 4TH.COM
+>Q                                                all done
+A>
+A>4TH
+
+808¶   Fig-FORTÈ  Versioî  1.0B                   notå ne÷ version
+
