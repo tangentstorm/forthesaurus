@@ -1,0 +1,3 @@
+* forthesaurus
+
+A database of word definitons from various forth implementations.
