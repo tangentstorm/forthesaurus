@@ -1,0 +1,1002 @@
+
+
+
+        I.  Introduction
+        II.  User's guide
+             A.  System requirements
+             B.  FORTH, calculator style
+                  1.  Getting started
+                  2.  Compiling definitions
+                  3.  Exiting FORTH
+             C.  Using the disk
+                  1.  FORTH's view of the disk
+                       a. Blocks
+                       b. Screens
+                  2.  Creating and editing new words
+                  3.  Compiling source definitions
+             D.  Modifying FORTH
+                  1.  Saving new FORTH's
+                  2.  Patching
+                  3.  Assembly source modification
+             E.  Glossary extension
+                  1.  Assembly listing definitions
+                  2.  Deleted words
+                  3.  High-level extensions
+             F.  FORTH application screens
+                  1.  Moving DOS files to FORTH screens
+                  2.  Using the screens
+        III.  Technical matters
+             A.  Modifications to fig-FORTH v1.0
+                  1.  Boot parameters
+                  2.  Machine code definitions
+                  3.  High-level utility definitions
+                  4.  Installation dependent code
+                       a.  Terminal i/o
+                       b.  Printer i/o
+                       c.  Disk i/o
+                  5.  High-level definitions
+                  6.  System tools
+                  7.  RAM workspace
+                  8.  Memory map
+        III.  Future extensions
+        IV.  FORTH sources
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        1
+
+
+
+
+
+
+
+
+             This is a description of modifications to,  and instructions 
+        for use of, 8086 fig-FORTH v1.0; as modified for MS-DOS by:
+
+             Joe Smith
+             University of Pennsylvania
+             Dept. of Chemistry
+             250 S. 33rd St.
+             Philadelphia, PA 19104
+
+        I.  Introduction
+
+             In  August of 1981,  having an 8086,  but precious little to 
+        run  on  it,  I  began to investigate  FORTH  as  an  alternative 
+        programming language.   The fig assembly listing for the 8086 was
+        edited  onto disk during April of 1982,  using the mnemonics  for 
+        Seattle   Computer  Products  8086  assembler.    Once  the  text 
+        interpreter was running, the disk interface was re-written to run 
+        under SCP's 86-DOS.  In august of 1982, slight modifications were 
+        made to take advantage of features supported by MS-DOS v1.25.
+
+             The  original goal was to install a language for my own use.  
+        That  is  still my primary  interest.    For  this  reason,  this 
+        version  of  the  language  is recommended  for  people  who  are 
+        familiar  with  their  computer,  and (somewhat  less  important) 
+        familiar with FORTH.   If you are new to FORTH,  you will have to 
+        dig for some of the basic information.  While it is certainly one 
+        way to learn, it is slow and sometimes frustrating.  If you are a 
+        person who enjoys understanding and tinkering with the mechanisms 
+        (read 'hacker'),  you should feel right at home.   If  you are an 
+        experienced  FORTH  user,  you can tell me all the things  I  did 
+        wrong!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        2
+
+
+
+
+
+
+
+
+        II.  User's guide
+
+             This  documentation  presents specific details necessary  to 
+        use FORTH under MS-DOS (et al.).   It is not meant to be a user's 
+        guide to FORTH in general.
+
+             A.  System requirements
+
+             Minimum:  16K + system, no disks   
+             Maximum:  64K + system, 2 disks  =   standard configuration 
+
+             B.  FORTH, calculator style
+                  1.  Getting started
+
+             After executing FORTH by giving COMMAND the name of the .COM 
+        program where FORTH resides, a banner will appear to let you know 
+        FORTH  is  ready  to execute  your  commands.   This  is  FORTH's 
+        execution state.   At this point,  type a carriage return;  FORTH 
+        should  respond  with  'ok'.   If it doesn't,  then  you  have  a 
+        problem.  
+
+             Keyboard entries are handled by the FORTH word EXPECT, which 
+        only knows about two 'special' keys:  <BACKSPACE> and <CR>.   Any 
+        other key is assumed to be a valid character.   No MS-DOS editing 
+        functions are available.   The exact key which EXPECT  recognizes 
+        as  <BACKSPACE> is set in FORTH's cold start parameters to <CTRL-
+        H> ( note change from fig,  where <BACKSPACE> = 5F hex ).  If you 
+        try  to backspace past the beginning of the  line,  the  terminal 
+        should  beep  and leave the cursor at the beginning of the  line.  
+        Note also that the backspace is destructive,  another change from 
+        the fig-FORTH EXPECT.
+
+             Other keyboard functions are provided by  MS-DOS.   <CTRL-S> 
+        will  pause console output;    <CTRL-P>/<CTRL-N> toggles  printer 
+        echo.  <CTRL-C> causes execution of the FORTH word (ABORT), which 
+        executes ABORT,  halting any i/o,  resetting the text interpreter 
+        and printing the start-up banner.   ABORT clears the stacks,  but 
+        doesn't  empty the disk buffers.   To test these functions,  type 
+        VLIST  <CR>.   VLIST  should  begin  printing  the  entire  FORTH 
+        vocabulary at the console.   To pause the listing, type <CTRL-S>; 
+        to abort the listing, type <CTRL-C>.
+
+             Note that (ABORT) may be patched by FORTH to execute a user-
+        defined error handler.
+
+                  2.  Compiling definitions
+
+             There  is nothing peculiar about entering definitions at the 
+        keyboard.   Once you type a ':',  you are in the compiling state.  
+        No  'ok'  is printed until you finish your definition  with  ';'.  
+        Definitions may have up to 80 characters on a line,  and as  many 
+        lines as needed.  However,  no editing is possible once a line is 
+        ended by <CR>.   If you make a mistake,  your definition must  be 
+        started over.
+
+
+
+                                        3
+
+
+
+
+
+
+
+
+             Try the following definition.
+
+             : STAR   42 EMIT ;<CR>
+
+        FORTH should respond 'ok' after you type the <CR>.   Now try your 
+        definition  by typing STAR<CR>.   FORTH should print  '*ok'.   If 
+        that worked, try this:
+
+             : MILKY-WAY
+               BEGIN  
+                  STAR SPACE SPACE 
+                  ?TERMINAL 
+               UNTIL ;
+
+        Remember  you won't get an 'ok' until you finish  the  definition 
+        with  the semi-colon.   Any leading spaces on a line are ignored.  
+        Test your definition by typing MILKY-WAY<CR>.  When you get tired 
+        of star gazing,  stop the program by hitting any key.  The  stars 
+        should stop, and FORTH should say 'ok'.
+
+             If   you  want  to  try  more  definitions,   feel  free  to 
+        experiment,  but don't try any disk operations.   At this  point, 
+        all you would get is garbage.
+
+                  3.  Exiting FORTH
+
+             BYE  is the usual fig-FORTH word to exit FORTH and return to 
+        the calling program; COMMAND normally, or DEBUG.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        4
+
+
+
+
+
+
+
+
+             D.  Using the disk
+
+                  1.  FORTH's view of the disk
+                       a.  Blocks
+
+             The  common  FORTH mass storage device is seen as  a  simple 
+        array  of  blocks,  referred to by number,  from zero up  to  the 
+        physical capacity of the disk.   These blocks are accessed in any 
+        order  and  completely  independent of the  MS-DOS  file  system.  
+        Thus,  FORTH  cannot  access MS-DOS files,  and FORTH  disks  are 
+        nonsense to MS-DOS.   For this reason,  you will need a  seperate 
+        disk,  dedicated  to  FORTH  screens ONLY.   The disk  should  be 
+        formatted  for  single-density  IBM  format.    The  exact   disk 
+        parameters  can be changed to other formats,  but you should  use 
+        the  standard ones until you know what you are doing.   If  there 
+        are any files on the disk, it's alright because FORTH will ignore 
+        them.  
+
+
+                       b. Screens
+
+             Internally,  FORTH  sees  the  disk as  block-sized  pieces; 
+        however,  the user is presented with a  fixed,  1024-byte,  chunk 
+        referred  to as a screen.   Note that a screen may,  or may  not, 
+        correspond  to one block.   A FORTH screen appears as 16 lines of 
+        64  characters.   This  is ONLY for appearance !   There  are  no 
+        physical  <CR>/<LF>  characters  between  lines,   and  the  63rd  
+        character  in  any  line  is  logically  adjacent  to  the  first 
+        character in the following line.   The first line of text screens 
+        is usually reserved for a short description of the contents.
+
+             Using  128-byte  blocks,  an 8" disk in the standard  format 
+        holds 1872 blocks ( 0-1871 ),  or 234 screens ( 0-233  ).   Block 
+        1872 is the first block on drive 1.
+
+             To  test FORTH's disk interface,  try the  following.  Start 
+        FORTH and,  after you get the 'ok', replace your system disk with 
+        a scratch disk as described above.  Be prepared to LOSE ANY FILES 
+        on  this disk!   Check the current screen by typing 'SCR ?' .  It 
+        should be 4 ( which is the initial value for the variable SCR  ).  
+        If  it isn't,  type COLD,  and repeat the above  procedure.   The 
+        current screen should now be 4.  Type EDITOR to select the editor 
+        vocabulary,  then  enter 'WIPE' to fill this screen with  blanks.  
+        Don't be alarmed if there is no disk activity at this point.  Now 
+        type 'L' to view the screen - it should be all blanks.   Now type 
+        'FLUSH'.   Now  there  should be some disk  activity,  and  FORTH 
+        should return 'ok'.  If there seems to be some problem, do a COLD 
+        start,  and try again.   If the problem persists,  make sure  the 
+        scratch  disk is properly formatted,  and try again.   Hopefully, 
+        there won't be any hangups,  and you'll get the 'ok'.   Now  type 
+        'L'  again.   FORTH  should go back to the disk,  then  list  the 
+        blank  screen.   
+
+
+
+
+
+                                        5
+
+
+
+
+
+
+
+
+             Enter some text into line zero of the screen by typing '0 T' 
+        followed  by 'P ( this is screen 4,  line 0 )'.   List the screen 
+        again to make sure the text is properly placed,  and use FLUSH to 
+        send it to the disk.  When you type 'L' again, the text should be 
+        just as you left it.
+
+                  2.  Creating and editing new words
+
+             There  are  two line-oriented editors included in the  FORTH 
+        screens.  One is the editor as described in "Starting FORTH"; the 
+        other   is  the  fig-FORTH  portable  editor  described  in   the 
+        Installation  Manual.   The  editors may be used to place  source 
+        text  on disk,  where it can be modified without  re-writing  the 
+        whole  definition.   The editor described in "Starting FORTH" has 
+        been compiled and included in the .COM file.
+
+             Try  editing  the definitions above for STAR  and  MILKY-WAY 
+        onto a screen on your scratch disk.
+
+                  3.  Compiling source screens
+
+             When  you have finished entering the definitions,  use FLUSH 
+        to make sure the disk has the latest version of the screen,  then 
+        type '4 LOAD'.  If FORTH says 'ok', test your new versions of the 
+        definitions  to make sure they were compiled correctly.   If  you 
+        get  an error while loading,  use WHERE to see the line where the 
+        problem is.
+
+             If everything looks 'ok' up to this point,  then you can use 
+        DEBUG, as described below and in the terminal session listing, to 
+        move  the MS-DOS file of FORTH screens over to your scratch  disk 
+        where FORTH can use them.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        6
+
+
+
+
+
+
+
+
+              E.  Modifying FORTH
+                  1.  Saving new FORTHs
+
+             One of the nice things about FORTH is the ability to  extend 
+        the language.   If you define a word which you want to use often, 
+        without re-compiling it every time, you can save the changes in a 
+        new .COM file.   The process involves using DEBUG to load FORTH's 
+        FORTH itself ), executing the FORTH words NEW ( which updates all 
+        the COLD start parameters ) and SIZE?  ( which tells you how  big 
+        the  new dictionary is ),  then exiting FORTH and using DEBUG  to 
+        write  the  new  .COM file.   For a  detailed  example,  see  the 
+        terminal session listing.
+
+             FORTH's   .COM  file  as  distributed  was  constructed   by 
+        assembling the source,  then LOADing additional words ( including 
+        the  editor ),  and saving the resulting dictionary using  DEBUG.  
+        The FORTH screens loaded to produce FORTH.COM can be found in the 
+        terminal session listing.
+
+                  2.  Patching
+
+             Most  of the parameters which affect the operation of  FORTH 
+        are placed in the boot-up parameter area at the low end of FORTH.  
+        These may be freely modified using DEBUG,  or from within  FORTH.  
+        On  execution  of  COLD,  the changes will be  incorporated  into 
+        FORTH.  Patches such as this can be made permanent using DEBUG.
+
+                  2.  Assembly source modification
+
+             Changes  not possible through the other two methods  can  be 
+        incorporated  into  the assembly source.   You can study the  fig 
+        listing for details on the inner workings of the interpreter;  or 
+        my listing for details specific to MS-DOS.
+
+             Note  the  alignment requirements.   The ALIGN pseudo-op  is 
+        required  when  the  name  length is  even,  and  also  when  the 
+        alignment  may  have been lost in the  previous  word.   This  is 
+        so that you can calculate the link field for the following word.
+
+             Be  aware of two problems here:  first,  it is very easy  to 
+        lose   track   of  the  changes  you  make,   so  document   EACH 
+        modification.   Second,  more changes make your version of  FORTH 
+        more unique ( or maybe just strange ),  and any definitions using 
+        that  unique feature less portable.   Weigh these factors  before 
+        making changes to the source.   Don't add bells and whistles just 
+        to be different.
+
+
+
+
+
+
+
+
+
+
+
+                                        7
+
+
+
+
+
+
+
+
+             F.  Glossary extension
+
+             The  following  is  an extension of the  fig-FORTH  glossary 
+        included in the fig Installation manual.
+
+                  1.  Assembly listing additions
+
+             The  following  words were added to  the  assembly  listing.  
+        They are all CODE level words.
+
+             (2ARR)                   n1 n2 PFA -- addr
+        Two  dimensional array primitive used by 2ARRAY.   The address of 
+        the array element at row n1,  column n2 of an array beginning  at 
+        PFA+4  is  left on the stack.   It is assumed that the rowsize  ( 
+        i.e.,  # columns ) is stored at PFA.  The contents of PFA+2 would 
+        normally  hold  the  number  of rows,  but is  not  used  in  the 
+        calculation.
+
+             (2CARR)                  n1 n2 PFA -- addr
+        Two  dimensional  byte  array primitive  used  by  STRINGS.   The 
+        address  of  the array element at row n1,  column n2 of an  array 
+        beginning at PFA+4 is left on the stack.   It is assumed that the 
+        rowsize  is stored at PFA.   The contents of PFA+2 could hold the 
+        number  of rows or the current length of the string;  it  is  not 
+        used in the calculation.
+
+             (ARRAY)                  n PFA -- addr
+        Integer  array primitive used by ARRAY.   The address of the  nth 
+        element in the array beginning at PFA+2 is calculated and left on 
+        the stack.  The length of the array is stored at PFA.
+
+             (CARR)                   n PFA -- addr
+        Byte  array  primitive used by CARRAY.   The address of  the  nth 
+        character in the array beginning at PFA+2 is calculated and  left 
+        on the stack.   The length of the array, or current length of the 
+        string may be stored at PFA.
+
+             (XOF)                    n1 n2 -- n1 ( no match, n1<>n2 )
+                                      n1 n2 --    ( match, n1=n2 )
+        Control  structure primitive compiled by OF.   If the case  being 
+        scanned  for (n1) matches the current case (n2),  the tag  n1  is 
+        dropped,  and the FORTH words following the branch compiled by OF 
+        are executed.   If this is not the case selected, the tag is left 
+        on the stack, and scanning continues with the next case.
+
+             1-                       n -- n-1
+             2-                       n -- n-2
+        Decrement operators.
+
+
+
+
+
+
+
+
+
+                                        8
+
+
+
+
+
+
+
+
+             :!                       n seg offset --
+             :@                       seg offset   -- n
+             :C!                      n seg offset --
+             :C@                      seg offset   -- n
+        Far fetch/store operators.   These are similar to the usual FORTH 
+        fetch/store words,  except they use a double-word address.   Note 
+        that the absolute location accessed is: seg*16 + offset.
+
+             BLOCK-READ               --
+             BLOCK-WRITE              --
+        Primitive  routines responsible for disk access.   These routines 
+        use  the  FORTH variables DRIVE,  USE,  SEC/BLK,  and  RECORD  to 
+        transfer  the  appropriate  number of disk  records  to/from  the 
+        buffer  specified  by  USE.   The FORTH  variable  DISK-ERROR  is 
+        set/reset  to  signal  an  error.   DISK-ERROR  is  zero  if  the 
+        operation  was successful;  non-zero if not.   The error code  is 
+        that returned by the MS-DOS read/write interrupts ( 25H & 26H  ), 
+        except that write errors are negative.
+
+             DATE!                    mon day yr --
+             DATE@                    -- yr day mon
+        Date fetch/store operators.   If any of the parameters are out of 
+        range, no changes are made.
+
+             MYSEG                    -- seg
+        This  word  returns the value of FORTH's current  segment.   This 
+        allows  the  the far fetch/store operators  to  access  locations 
+        inside FORTH in the usual way.
+
+             PRINTER                  -- addr
+        A  variable which causes console i/o to be echoed to the printer.  
+        If PRINTER is non-zero,  the printer is 'on'.   Note that this is 
+        independent of the <CTRL-P>/<CTRL-N> echo !
+
+             RECORD                   -- addr
+        A  variable which contains the number of the last logical  record 
+        accessed.   RECORD  is set by T&SCALC and used by BLOCK-READ  and 
+        BLOCK-WRITE.
+
+             TIME!          [sec csec] [hr min] --
+             TIME@          -- [sec csec] [hr min]
+        Time  store/fetch operators.   These routines set/get the  system 
+        time.  If any of the parameters are invalid, no changes are made.  
+        All of the values are bytes,  but are packed into 2 words;  i.e., 
+        the  low byte of the top stack item holds the minutes,  the  high 
+        byte holds the hours, and so on.
+
+
+
+
+
+
+
+
+
+
+
+                                        9
+
+
+
+
+
+
+
+
+                  2.  Deleted words
+
+             The  following  words appearing in the fig assembly  listing 
+        were not used, and therefore deleted.
+
+             SEC
+             TRACK
+             SET-IO
+             SET-DRIVE
+             SECRD
+             SECWT
+
+                  3.  High-level extensions.
+
+             The  following  words were added by compiling FORTH  screens 
+        and  saving  the new version of FORTH  using  DEBUG.   The  FORTH 
+        source for all of these words is included in the screen file.
+
+             ARRAY
+             2ARRAY
+             STRING
+             STRINGS
+        1 and 2 dimensional array defining words.  See the source screens 
+        for more comments.
+
+             CASE
+             OF  ENDOF
+             ENDCASE
+        These  words  add  a case construct to  FORTH.   They  have  been 
+        documented  in  several different places.   See screen 22 for  an 
+        example.
+
+             DUMP                addr -- addr2
+        This  word  displays the contents of location  addr  to  addr2-1; 
+        addr2  is  left on the stack so that DUMP can be entered  without 
+        keeping track of the address.   The dump is in the current number 
+        base.   A  variable SEGMENT is used as the base,  and addr is  an 
+        offset in that segment.  SEGMENT is initialized to MYSEG.
+
+             NEW                      --
+        NEW updates the start-up parameters to reflect the current  state 
+        of  FORTH.   This allows compiled definitions to be retained when 
+        COLD is executed.   Note that once NEW is executed,  if the added 
+        words  are  deleted by FORGET,  the start-up parameters  will  be 
+        wrong, and NEW must be done again before a cold start.
+
+             SIZE?                    --
+        Shows  the  current size of the FORTH dictionary,  and  the  free 
+        space remaining.   This is primarily useful for telling DEBUG how 
+        big  a file to create when saving a new version  of  FORTH.   NEW 
+        must be run before saving a different version.
+
+
+
+
+
+
+                                       10
+
+
+
+
+
+
+
+
+             G.  FORTH application screens
+                  1.  Moving DOS files to FORTH screens
+             
+             Occasionally  it may be useful to have FORTH screens  reside 
+        in a DOS file.  DEBUG may be employed to transfer screens between 
+        the two environments.   Be careful, back-up both disks BEFORE you 
+        make a mistake.  See the terminal session listings for a detailed 
+        example.
+
+                  2.  Using the screens
+
+             Since  most  of the screens are simple utilties,  their  use 
+        should be self-evident.   Hopefully,  in the future, more complex 
+        applications can be distributed.
+
+             LIFE
+
+        The  LIFE  program  provided is nice to watch,  but is  not  very 
+        clearly  written.   You will have to write your own  routines  to 
+        position the cursor on your terminal.  The words on screen 31 may 
+        serve  as a model.   After loading the first screen ( 35 LOAD  ), 
+        FORTH  will  inform  you how to start the game.   To set  up  the 
+        board,   use  <SPACE> / <BACKSPACE> to move the cursor right  and 
+        left,  and <LINEFEED> to move down,  or <CR> to move down and  to 
+        the beginning of the line.  <ESC> starts the activity.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                       11
+
+
+
+
+
+
+
+
+        III.  Technical matters
+
+             A.  Modifications to fig-FORTH v1.0
+
+             This  section describes specific changes to the fig  listing 
+        as  outlined  in  the Installation Manual.   The  headings  below 
+        correspond to those in the manual;  if no changes are  noted,  no 
+        changes have been made to that part of the model.
+
+                  1.  Boot parameters
+
+             14 +ORIGIN ( BSIN ) Changed to 08 ( ASCII CTRL-H )
+
+                  2.  Machine code definitions
+
+             (FIND)  Changed to accomodate word-aligned LFA's. See CREATE 
+        below.
+
+                  3.  High-level utility definitions
+
+             1+  2+   Changed to CODE level definitions.
+             TRAVERSE Modified to handle word-aligned LFA's
+             PFA      Modified to handle word-aligned PFA's
+             EXPECT   Backspace made destructive
+             ID.      Modified to reset MSB of last character
+             CREATE   Modified  to compile dictionary entries with  word-
+        aligned  LFA.   If  DP is odd after compiling  the  name,  DP  is 
+        incremented,  so  that  the rest of the definition falls at  even 
+        adresses.   If  byte  values  are compiled  into  the  definition 
+        subsequently,  the alignment may be lost.   Note that the  length 
+        byte  at  NFA still gives the exact length of the name,  but  not 
+        necessarily the displacement to the LFA.
+             QUIT     Prints lower case 'ok'
+             ABORT    Changed to print the user version as well
+             COLD     Sets SCR to 4
+
+                  4.  Installation dependent code
+                       a.  Terminal i/o
+
+             (KEY)          uses MS-DOS function 8
+             (EMIT)         uses MS-DOS function 2
+             (?TERMINAL)    uses MS-DOS function 11
+             (CR)           uses MS-DOS function 2
+
+                       b.  Printer i/o
+
+             EPRINT   Changed to PRINTER
+
+
+
+
+
+
+
+
+
+
+                                       12
+
+
+
+
+
+
+
+
+                       c.  Disk i/o
+             All  disk  parameters  were moved to the  beginning  of  the 
+        listing,  and all LITERAL parameters in definitions were  changed 
+        to use the EQU symbols,  or  FORTH variables ( +BUF,  R/W ).  All 
+        disk  i/o  is done through the block read/write  interrupts  25H, 
+        26H.   The  variables  DISK,  RECORD,  SEC/BLK and USE  serve  to 
+        specify the disk record and transfer address.
+
+             T&SCALC sets DISK and RECORD  from the block number supplied 
+        by R/W.
+
+             R/W calls T&SCALC, then BLOCK-READ or BLOCK-WRITE.  If DISK-
+        ERROR is non-zero,  message #8 is issued and the buffer is marked 
+        as  unused.   DISK-ERROR can be examined by the user to find  the 
+        exact  cause of the error.   The error codes are as specified  in 
+        the  MS-DOS documentation,  except write errors are  returned  as 
+        negative  numbers ( e.g.  DISK-ERROR = -2 for not ready error  on 
+        write operation ).
+
+                  5.  High-level definitions
+                  6.  System tools
+                  7.  Ram workspace
+                  8.  Memory map
+
+             The  memory map was expanded to use all 64K ( LIMIT =  0  ), 
+        and 16 block-buffers.
+
+                  9.  Other
+
+             COLD  sets  the <CTRL-C> interrupt vector ( MS-DOS  function 
+        25h ) to the address of a code fragment which vectors the  inter-
+        preter to (ABORT).
+             BYE causes execution of interrupt 20h.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                       13
+
+
+
+
+
+
+
+
+             H.  Future extensions
+
+             There  are a number of things I would like to add to  FORTH; 
+        all  involve a certain amount of work,  and some are not  at  all 
+        trivial.   If  you  are interested in making some suggestions  or 
+        contributing  any changes,  I would certainly enjoy  talking  and 
+        trading.  A list of these extensions would include:
+
+             Immediate future:   High-level character string operators
+                                 High-level floating point
+                                 Screen editor(s)
+                                 Assembler
+                                 Command line arguments ( this is a  very 
+                                      simple  possibility, I just haven't 
+                                      found a good use for it )
+
+             Near  future:       Real MS-DOS file interface ( not  just 
+                                   random access )
+                                 I/O redirection via execution vectors
+                                 CODE level character string functions
+
+             ???   future:       Cross/target compiler
+                                 CODE level floating-point / 8087 support
+                                 Multi-segmented
+                                 Multi-tasking
+                                 Tree structured vocabularies/file system
+                                 High-level interrupt handling
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                       14
+
+
+
+
+
+
+
+
+                     IV.  FORTH sources
+             The   following   are  sources  of   information   regarding 
+        implementation and use of FORTH.
+
+             Starting FORTH.  Leo Brodie, FORTH, Inc. Prentice-Hall 1981
+        Excellent introductory material.
+
+             Byte, vol.5 no.8, August 1980
+        Language  issue  devoted to FORTH.  Good discussion  of  defining 
+        words and FORTH internals.
+
+             Dr. Dobbs Journal, vol.6 no.9, September 1980
+             Dr. Dobbs Journal, vol.7 no.9, September 1981
+        Issues devoted to FORTH topics.
+
+             FORTH Interest Group
+             P.O. Box 1105
+             San Carlos, CA  94070
+        Public domain listings, bi-monthly newletter FORTH Dimensions.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                       15
+
+
+
+
+
+
+
+
+        This disk copy was originally provided by "The Public Library",
+        the software library of the Houston Area League of PC Users.
+ 
+        Programs are available from the Public Library at $2 per disk
+        on user-provided disks.  To get a listing of the disks in the
+        Public Library, send a self-addressed, stamped envelope to
+
+             Nelson Ford,  P.O.Box 61565,  Houston, TX 77208.
+
