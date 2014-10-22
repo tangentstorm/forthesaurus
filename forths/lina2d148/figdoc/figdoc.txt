@@ -1,0 +1,11 @@
+$ Id: $
+  This documentation is dated 1979:may. 
+  Chapter 6.0 was considered out of date 1980:NOV. 
+  OCR-ed by A.van der Horst, DFW, The Netherlands (2000:MAR)
+  Correction of typo's (some original) and slight changes to the layout are
+  the only changes. 
+  
+At 2000:nov:10 this documentation was burned down in favour
+of the generated user information for ciforth.
+It is still obtainable as the latest branch of figdoc.txt 1.3.
+
